@@ -1,0 +1,16 @@
+# Data Layer Configuration
+# CRS and caching settings
+
+cache_dir: ".cache/argus"
+target_crs: "EPSG:4326"
+supported_formats:
+  - "tif"
+  - "tiff"
+  - "png"
+  - "jpg"
+  - "jpeg"
+
+# Thumbnail generation
+thumbnail:
+  max_size: 256
+  format: "PNG"

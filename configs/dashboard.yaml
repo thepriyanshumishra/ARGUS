@@ -1,0 +1,32 @@
+# Dashboard Configuration
+# Streamlit app settings
+
+streamlit:
+  page_title: "ARGUS - Urban Mobility Resilience"
+  page_icon: "🛰️"
+  layout: "wide"
+  initial_sidebar_state: "expanded"
+
+map:
+  default_center: [12.97, 77.59]  # Bangalore
+  default_zoom: 12
+  pitch: 45
+  bearing: 0
+
+layers:
+  base_style: "mapbox://styles/mapbox/light-v10"
+  road_color: [0, 100, 200]
+  road_width: 3
+  critical_node_color: [255, 0, 0]
+  critical_edge_color: [255, 100, 0]
+  route_color: [0, 200, 0]
+  flood_color: [0, 0, 255, 100]
+
+ui:
+  show_raw_data: false
+  auto_refresh: false
+  export_formats: ["geojson", "csv", "png"]
+
+performance:
+  max_points: 10000
+  simplify_tolerance: 0.0001

@@ -1,0 +1,21 @@
+# Simulation Engine Configuration
+# Disaster scenario parameters
+
+default_scenario_dir: "configs/scenarios"
+
+flood:
+  default_depth_threshold_m: 0.5
+  default_velocity_threshold_ms: 1.0
+  removal_method: "contains"  # "contains", "intersects"
+
+bridge_collapse:
+  removal_method: "edge_tag"  # remove edges with is_bridge=true in region
+
+road_blockage:
+  weight_multiplier: 1000  # effectively block by increasing weight
+  default_duration_hours: 24
+
+impact:
+  compute_disconnected_components: true
+  compute_reroute_demand: true
+  affected_population_estimation: false  # requires population data

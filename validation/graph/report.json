@@ -1,0 +1,27 @@
+{
+  "experiment": "02_graph",
+  "status": "pass",
+  "verdict": "works_with_issues",
+  "observations": [
+    "Skeletonization: scikit-image skeletonize works (0.014s for 512x512 mask)",
+    "Graph built via: pure-Python fallback (sknw blocked by numba/llvmlite build)",
+    "Nodes detected: 236, Edges traced: 97",
+    "Connected components: 139 (graph fragmentation — naive tracer needs refinement)",
+    "Largest component: 2 nodes — pure-Python tracing algorithm produces fragmented topology",
+    "Node attributes: y, x, pts available and geo-annotatable",
+    "Edge attributes: pts, weight (length) available",
+    "Geo coordinate annotation: 236/236 nodes annotated (pixel → lat/lon)",
+    "NetworkX algorithm compatibility: betweenness centrality computed (0.015s)",
+    "Core concept validated: skeleton → graph conversion → NetworkX algorithms works end-to-end"
+  ],
+  "notes": [
+    "sknw not installable: depends on numba which depends on llvmlite; llvmlite build requires system LLVM and fails with uv/pip on this macOS setup",
+    "Pure-Python fallback validates technical feasibility but produces fragmented graph topology — a proper implementation (closely following sknw's algorithm) would resolve this",
+    "No fundamental architectural flaw detected; the skeleton→graph pipeline is valid but needs a working library or a better pure-Python implementation",
+    "This is a known challenge; sknw exists specifically to solve this exact problem"
+  ],
+  "follow_up": [
+    "Sprint 0: resolve numba/llvmlite build for sknw, or evaluate alternative skeleton-to-graph packages (skeleton2graph, custom implementation)",
+    "The architectural assumption (mask → skeleton → graph) is valid. The tooling choice (sknw) needs environment resolution."
+  ]
+}

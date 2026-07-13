@@ -1,0 +1,14 @@
+scenario_id: "bridge_collapse_main"
+scenario_type: "bridge_collapse"
+affected_region:
+  type: "Polygon"
+  coordinates: [[
+    [77.59, 12.97],
+    [77.60, 12.97],
+    [77.60, 12.98],
+    [77.59, 12.98],
+    [77.59, 12.97]
+  ]]
+severity: 1.0
+parameters:
+  target_bridges: ["main_bridge_1"]

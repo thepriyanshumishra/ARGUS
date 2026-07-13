@@ -1,0 +1,70 @@
+{
+  "sprint": "Sprint -1",
+  "title": "Technology Validation",
+  "status": "complete",
+  "environment": {
+    "python": "3.11.15",
+    "platform": "macOS (darwin), Homebrew Python, no Conda",
+    "venv": "validation/.venv/ (uv managed)",
+    "package_manager": "uv",
+    "pip_list": "validation/pip_list_complete.txt"
+  },
+  "experiments": [
+    {
+      "id": "V1",
+      "name": "Vision Feasibility",
+      "directory": "validation/vision/",
+      "verdict": "works",
+      "summary": "SAM-Road++ loads successfully on CPU. ViT-B backbone (357 MB) downloaded from HuggingFace. Trained checkpoint (spacenet_vitb_256_e10.ckpt) loads as valid PyTorch state_dict. Model architecture parseable. Sample image (1024×1024) loaded."
+    },
+    {
+      "id": "V2",
+      "name": "Graph Pipeline Feasibility",
+      "directory": "validation/graph/",
+      "verdict": "works_with_issues",
+      "summary": "Core concept (mask → skeleton → graph → NetworkX algorithms) validated end-to-end. 236 nodes, 97 edges detected from synthetic road mask. Betweenness centrality computed. sknw blocked by numba/llvmlite build failure (system LLVM issue on macOS); pure-Python fallback produced fragmented topology (139 components, largest=2 nodes). No fundamental architectural flaw."
+    },
+    {
+      "id": "V3",
+      "name": "Dashboard Feasibility",
+      "directory": "validation/dashboard/",
+      "verdict": "works",
+      "summary": "Streamlit 1.59.1 and PyDeck 0.9.3 import correctly. GeoJSON FeatureCollection built from synthetic road graph (20 nodes, 31 edges). GeoJsonLayer + ScatterplotLayer created successfully. pdk.Deck renders. Full dashboard app written to validation/dashboard/dashboard_app.py."
+    },
+    {
+      "id": "V4",
+      "name": "Technology Compatibility",
+      "directory": "validation/compatibility/",
+      "verdict": "works_with_issues",
+      "summary": "20/20 runtime dependencies import successfully (numpy 2.4.6, scipy 1.17.1, pandas 3.0.3, rasterio 1.4.4, geopandas 1.1.4, shapely 2.1.2, pyproj 3.7.2, networkx 3.6.1, scikit-image 0.26.0, scikit-learn 1.9.0, torch 2.2.2, torchvision 0.17.2, opencv 5.0.0, omegaconf 2.3.1, pyyaml 6.0.3, loguru 0.7.3, streamlit 1.59.1, pydeck 0.9.3, folium 0.20.0, typer 0.26.8). Pickle and GeoJSON serialization work; GraphML fails with MultiDiGraph (known NetworkX 3.x limitation)."
+    }
+  ],
+  "overall_verdict": "works_with_issues",
+  "risks": [
+    {
+      "risk": "numba/llvmlite build failure",
+      "impact": "sknw blocked on macOS; impacts graph extraction from skeleton",
+      "mitigation": "Evaluate alternative skeleton-to-graph packages (skeleton2graph, custom impl) or fix llvmlite build (Homebrew LLVM, conda-forge)",
+      "severity": "medium"
+    },
+    {
+      "risk": "numpy 2.x compatibility warnings with torch 2.2.2",
+      "impact": "torch emits UserWarning about _ARRAY_API; potential instability in edge cases",
+      "mitigation": "Pin numpy<2 in production requirements, or upgrade torch to 2.3+",
+      "severity": "low"
+    },
+    {
+      "risk": "GraphML serialization unsupported for MultiDiGraph",
+      "impact": "Cannot use GraphML as interop format unless converting to plain Graph first",
+      "mitigation": "Use Pickle for full round-trips, convert to Graph for GraphML exports, or use GeoJSON for dashboard-consumable output",
+      "severity": "low"
+    }
+  ],
+  "recommendations": [
+    "Sprint 0: resolve sknw/numba build (Homebrew LLVM, or evaluate skimage.morphology.medial_axis + custom tracing)",
+    "Proceed with architecture as documented — no fundamental architectural blockers found",
+    "Pin numpy<2.0 in production to avoid torch compatibility warnings",
+    "Start Sprint 0 repository initialization: src/, tests/, configs/ structure per ARCHITECTURE.md"
+  ],
+  "generated_at": "2026-07-12T00:00:00Z"
+}

@@ -1,0 +1,25 @@
+# Analytics Engine Configuration
+# Criticality metrics to compute
+
+metrics:
+  - "betweenness"
+  - "closeness"
+  - "degree"
+  - "articulation"
+  - "bridges"
+
+betweenness:
+  normalized: true
+  k: null  # use all nodes
+
+closeness:
+  normalized: true
+
+degree:
+  normalized: true
+
+top_n: 10
+
+report:
+  format: "json"  # "json", "csv", "both"
+  output_dir: "outputs/analytics"

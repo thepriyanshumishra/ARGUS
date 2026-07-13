@@ -1,0 +1,8 @@
+{
+  "experiment": "04_compatibility",
+  "status": "pass",
+  "verdict": "works_with_issues",
+  "observations": "Dependency imports: 20/20 ok; Serialization: GraphML=fail, Pickle=ok, GeoJSON=ok; All imports pass but serialization has partial failures",
+  "notes": "",
+  "follow_up": "None"
+}

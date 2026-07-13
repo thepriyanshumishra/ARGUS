@@ -1,0 +1,15 @@
+scenario_id: "road_blockage_arterial"
+scenario_type: "road_blockage"
+affected_region:
+  type: "Polygon"
+  coordinates: [[
+    [77.595, 12.97],
+    [77.598, 12.97],
+    [77.598, 12.98],
+    [77.595, 12.98],
+    [77.595, 12.97]
+  ]]
+severity: 1.0
+parameters:
+  weight_multiplier: 1000
+  duration_hours: 12

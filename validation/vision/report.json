@@ -1,0 +1,8 @@
+{
+  "experiment": "01_vision",
+  "status": "pass",
+  "verdict": "works",
+  "observations": "torch 2.2.2 on cpu; SAM ViT-B backbone available: True; SAM-Road++ repo cloned: True; Trained checkpoint available; Model architecture parseable: True; Checkpoint loads as valid torch state_dict; Sample image: (1024, 1024, 3)",
+  "notes": "Python 3.11.15; Working directory: /Users/thedarkpcm/Desktop/Priyanshu/ARGUS/validation/vision",
+  "follow_up": "Document checkpoint download procedure in scripts/download_models.py"
+}

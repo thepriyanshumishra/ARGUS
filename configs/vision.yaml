@@ -1,0 +1,20 @@
+# Vision Module Configuration
+# Model paths, inference settings, post-processing
+
+model:
+  type: "sam_road"  # "sam_road" or "dlinknet"
+  path: "assets/checkpoints/sam_road_plus_plus.pth"
+  fallback_path: "assets/checkpoints/dlinknet.pth"
+
+device: "auto"  # "auto", "cpu", "cuda"
+tile_size: 512
+overlap: 64
+batch_size: 1
+
+threshold: 0.5
+
+postprocess:
+  min_area: 50
+  close_kernel: 3
+  open_kernel: 3
+  fill_gaps: 10

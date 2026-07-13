@@ -1,0 +1,15 @@
+scenario_id: "flood_zone_a"
+scenario_type: "flood"
+affected_region:
+  type: "Polygon"
+  coordinates: [[
+    [77.58, 12.96],
+    [77.62, 12.96],
+    [77.62, 12.99],
+    [77.58, 12.99],
+    [77.58, 12.96]
+  ]]
+severity: 1.0
+parameters:
+  depth_threshold_m: 0.3
+  velocity_threshold_ms: 1.5

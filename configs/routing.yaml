@@ -1,0 +1,29 @@
+# Routing Engine Configuration
+# Algorithm selection and parameters
+
+default_algorithm: "dijkstra"  # "dijkstra", "astar", "k_shortest"
+
+dijkstra:
+  weight: "length"
+
+astar:
+  weight: "length"
+  heuristic: "euclidean"  # "euclidean", "haversine"
+
+k_shortest:
+  k: 3
+  max_paths: 10
+
+accessibility:
+  facility_types:
+    - "hospital"
+    - "shelter"
+    - "emergency_exit"
+  max_distance_km: 10
+  speed_kmh: 40
+
+output:
+  formats:
+    - "geojson"
+    - "json"
+  include_elevation: false
