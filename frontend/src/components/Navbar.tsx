@@ -28,13 +28,13 @@ export const Navbar: React.FC = () => {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-pure-white/95 backdrop-blur-md border-b border-stone-border px-12 h-20 flex items-center justify-between shadow-subtle select-none">
+    <nav className="sticky top-0 z-50 bg-stone-canvas/80 backdrop-blur-md border-b border-stone-border px-12 h-20 flex items-center justify-between select-none">
       {/* Left: Brand Logo Wordmark */}
       <div
         className="flex items-center gap-2.5 cursor-pointer group"
         onClick={() => navigate('/')}
       >
-        <div className="w-7 h-7 rounded bg-soot flex items-center justify-center text-pure-white transition-colors duration-150 group-hover:bg-cyan-signal">
+        <div className="w-7 h-7 rounded bg-pure-white border border-stone-border flex items-center justify-center text-ink-black transition-all duration-150 group-hover:bg-cyan-signal/20 group-hover:text-cyan-signal group-hover:border-cyan-signal/40">
           <Sparkles className="w-4 h-4" strokeWidth={2.5} />
         </div>
         <span className="font-roobert font-semibold text-[16px] text-ink-black tracking-tight">
@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
 
       {/* Center: Tabs group - only on active workflow steps */}
       {isWorkflow && isAuthenticated ? (
-        <div className="bg-stone-canvas border border-stone-border rounded-full p-1 flex items-center gap-1 shadow-subtle">
+        <div className="bg-pure-white border border-stone-border rounded-full p-1 flex items-center gap-1 shadow-sm">
           {STEPS.map((step) => {
             const isActive = pathname === step.path
             return (
@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => navigate(step.path)}
                 className={`px-5 py-2 rounded-full text-[13px] font-inter font-medium leading-none transition-all duration-150 focus:outline-none focus:ring-0 select-none ${
                   isActive
-                    ? 'bg-soot text-pure-white shadow-sm'
+                    ? 'bg-stone-canvas text-cyan-signal border border-stone-border shadow-inner'
                     : 'text-warm-gray hover:text-ink-black bg-transparent'
                 }`}
               >
@@ -96,7 +96,7 @@ export const Navbar: React.FC = () => {
         {isAuthenticated && (
           <button
             onClick={handleReset}
-            className="h-9 px-4 border border-stone-border rounded-full text-[13px] font-inter font-medium text-ink-black hover:bg-stone-canvas hover:border-ash-gray active:scale-[0.98] transition-all duration-150 focus:outline-none focus:ring-0 cursor-pointer"
+            className="h-9 px-4 border border-stone-border rounded-full text-[13px] font-inter font-medium text-ink-black hover:bg-stone-muted hover:border-warm-gray active:scale-[0.98] transition-all duration-150 focus:outline-none focus:ring-0 cursor-pointer"
           >
             Reset Session
           </button>

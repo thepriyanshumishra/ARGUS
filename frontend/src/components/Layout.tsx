@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Navbar } from './Navbar'
 import { Sparkles, Globe, FileText, Shield } from 'lucide-react'
+import TargetCursor from './TargetCursor'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -13,7 +14,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isHome = pathname === '/'
 
   return (
-    <div className="min-h-screen bg-stone-canvas flex flex-col font-inter selection:bg-sky-wash">
+    <div className="min-h-screen bg-stone-canvas flex flex-col font-inter selection:bg-sky-wash relative overflow-hidden">
+      <TargetCursor
+        cursorColor="#06b6d4"
+        cursorColorOnTarget="#10b981"
+        targetSelector=".cursor-target, button, a, select, input, [role='button']"
+      />
       {/* Top Navbar */}
       <Navbar />
 
@@ -28,7 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Conditional Footer: Full Bento/Editorial for Home page OR Minimal for Steps */}
       {isHome ? (
-        <footer className="w-full bg-pure-white border-t border-stone-border mt-auto pt-16 pb-12 select-none">
+        <footer className="w-full bg-stone-canvas border-t border-stone-border mt-auto pt-16 pb-12 select-none">
           <div className="max-w-[1400px] mx-auto px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
             {/* Logo and Wordmark Column */}
             <div className="md:col-span-5 flex flex-col gap-4">
@@ -36,7 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className="flex items-center gap-2.5 cursor-pointer group w-fit"
                 onClick={() => navigate('/')}
               >
-                <div className="w-7 h-7 rounded bg-soot flex items-center justify-center text-pure-white transition-colors duration-150 group-hover:bg-cyan-signal">
+                <div className="w-7 h-7 rounded bg-pure-white border border-stone-border flex items-center justify-center text-ink-black transition-colors duration-150 group-hover:bg-cyan-signal/20 group-hover:text-cyan-signal">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <span className="font-roobert font-semibold text-[15px] text-ink-black tracking-tight">

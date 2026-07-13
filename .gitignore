@@ -54,6 +54,7 @@ htmlcov/
 assets/checkpoints/*.pth
 assets/checkpoints/*.pt
 assets/checkpoints/*.bin
+assets/checkpoints/cache/
 
 # Data
 assets/samples/*.tif

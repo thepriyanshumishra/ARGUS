@@ -62,7 +62,11 @@ interface AppState {
   resetStore: () => void
 }
 
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = typeof window !== 'undefined'
+  ? (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+      ? 'http://localhost:8000'
+      : window.location.origin)
+  : 'http://localhost:8000';
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Authentication initial state read from localStorage
