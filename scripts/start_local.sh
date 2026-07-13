@@ -11,4 +11,5 @@ npm run build
 cd ..
 
 echo "=== Starting Integrated FastAPI Server on http://localhost:8000 ==="
-python -m uvicorn src.argus.api.main:app --host 0.0.0.0 --port 8000 --reload
+export PYTHONPATH=src
+python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload

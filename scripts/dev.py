@@ -60,12 +60,23 @@ def signal_handler(sig, frame):
 def start_process(command, cwd, prefix, color):
     """Starts a subprocess and spawns a thread to log its output."""
     try:
+        import os
+        env = os.environ.copy()
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        src_dir = os.path.join(root_dir, "src")
+        existing_pythonpath = env.get("PYTHONPATH", "")
+        if existing_pythonpath:
+            env["PYTHONPATH"] = f"{src_dir}{os.pathsep}{existing_pythonpath}"
+        else:
+            env["PYTHONPATH"] = src_dir
+
         p = subprocess.Popen(
             command,
             cwd=cwd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True,
+            env=env,
         )
         processes.append(p)
 
@@ -92,7 +103,7 @@ def main():
     # Start Backend (FastAPI via uvicorn)
     print(f"{GREEN}[Dev Manager]{RESET} Starting FastAPI backend on http://localhost:8000")
     start_process(
-        command="python -m uvicorn src.argus.api.main:app --host 0.0.0.0 --port 8000 --reload",
+        command="python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload",
         cwd=root_dir,
         prefix="[Backend]",
         color=GREEN,
