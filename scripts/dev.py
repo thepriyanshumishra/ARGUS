@@ -98,12 +98,19 @@ def main():
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     frontend_dir = os.path.join(root_dir, "frontend")
 
+    # Locate virtual environment python if it exists
+    venv_python = os.path.join(root_dir, ".venv", "bin", "python")
+    if not os.path.exists(venv_python):
+        venv_python = os.path.join(root_dir, ".venv", "Scripts", "python.exe")
+    python_exe = venv_python if os.path.exists(venv_python) else "python"
+
+    print(f"{GREEN}[Dev Manager]{RESET} Using Python executable: {python_exe}")
     print(f"{GREEN}[Dev Manager]{RESET} Starting ARGUS Development Environment...")
 
     # Start Backend (FastAPI via uvicorn)
     print(f"{GREEN}[Dev Manager]{RESET} Starting FastAPI backend on http://localhost:8000")
     start_process(
-        command="python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload",
+        command=f"{python_exe} -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload",
         cwd=root_dir,
         prefix="[Backend]",
         color=GREEN,

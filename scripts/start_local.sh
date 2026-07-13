@@ -12,4 +12,8 @@ cd ..
 
 echo "=== Starting Integrated FastAPI Server on http://localhost:8000 ==="
 export PYTHONPATH=src
-python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload
+if [ -f ".venv/bin/python" ]; then
+    .venv/bin/python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload
+else
+    python -m uvicorn argus.api.main:app --host 0.0.0.0 --port 8000 --reload
+fi
