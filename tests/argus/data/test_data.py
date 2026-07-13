@@ -3,13 +3,12 @@
 import geopandas as gpd
 import numpy as np
 import rasterio
-from rasterio.crs import CRS
-from rasterio.transform import from_bounds
-
 from argus.data.cache import ArtifactCache
 from argus.data.imagery import RasterImageLoader
 from argus.data.preprocessing import create_thumbnail, normalize_image
 from argus.data.vector import load_vector_data
+from rasterio.crs import CRS
+from rasterio.transform import from_bounds
 
 
 class TestImagery:
@@ -211,7 +210,6 @@ class TestCache:
     def test_cache_road_graph(self, tmp_path):
         """Test caching RoadGraph via graphml + json."""
         import networkx as nx
-
         from argus.core.types import RoadGraph
 
         cache = ArtifactCache(cache_dir=tmp_path)

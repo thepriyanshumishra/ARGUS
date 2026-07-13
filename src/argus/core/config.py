@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 
 from omegaconf import DictConfig, ListConfig, OmegaConf
 
@@ -12,6 +12,7 @@ CONFIG_DIR = Path(__file__).parent.parent.parent.parent / "configs"
 
 
 # --- Structured Config Schemas for M0 & M1 Validation ---
+
 
 @dataclass
 class ThumbnailConfig:
@@ -23,7 +24,9 @@ class ThumbnailConfig:
 class DataConfig:
     cache_dir: str = ".cache/argus"
     target_crs: str = "EPSG:4326"
-    supported_formats: List[str] = field(default_factory=lambda: ["tif", "tiff", "png", "jpg", "jpeg"])
+    supported_formats: list[str] = field(
+        default_factory=lambda: ["tif", "tiff", "png", "jpg", "jpeg"]
+    )
     thumbnail: ThumbnailConfig = field(default_factory=ThumbnailConfig)
 
 
@@ -51,7 +54,7 @@ class VisionConfigSchema:
     batch_size: int = 1
     threshold: float = 0.5
     postprocess: VisionPostprocessConfig = field(default_factory=VisionPostprocessConfig)
-    allow_random_weights: Optional[bool] = None
+    allow_random_weights: bool | None = None
 
 
 @dataclass
@@ -103,7 +106,7 @@ class GraphConfigSchema:
 @dataclass
 class MetricBetweennessConfig:
     normalized: bool = True
-    k: Optional[int] = None
+    k: int | None = None
 
 
 @dataclass
@@ -124,7 +127,9 @@ class AnalyticsReportConfig:
 
 @dataclass
 class AnalyticsConfigSchema:
-    metrics: List[str] = field(default_factory=lambda: ["betweenness", "closeness", "degree", "articulation", "bridges"])
+    metrics: list[str] = field(
+        default_factory=lambda: ["betweenness", "closeness", "degree", "articulation", "bridges"]
+    )
     betweenness: MetricBetweennessConfig = field(default_factory=MetricBetweennessConfig)
     closeness: MetricClosenessConfig = field(default_factory=MetricClosenessConfig)
     degree: MetricDegreeConfig = field(default_factory=MetricDegreeConfig)
@@ -185,14 +190,16 @@ class RouteKShortestConfig:
 
 @dataclass
 class RouteAccessibilityConfig:
-    facility_types: List[str] = field(default_factory=lambda: ["hospital", "shelter", "emergency_exit"])
+    facility_types: list[str] = field(
+        default_factory=lambda: ["hospital", "shelter", "emergency_exit"]
+    )
     max_distance_km: float = 10.0
     speed_kmh: float = 40.0
 
 
 @dataclass
 class RouteOutputConfig:
-    formats: List[str] = field(default_factory=lambda: ["geojson", "json"])
+    formats: list[str] = field(default_factory=lambda: ["geojson", "json"])
     include_elevation: bool = False
 
 

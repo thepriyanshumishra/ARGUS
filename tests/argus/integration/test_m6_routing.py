@@ -8,7 +8,6 @@ from pathlib import Path
 
 import networkx as nx
 import pytest
-
 from argus.core.types import RoadGraph
 from argus.graph.export import export_pickle
 

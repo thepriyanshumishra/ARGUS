@@ -1,7 +1,6 @@
 """Smoke tests for vision module."""
 
 import numpy as np
-
 from argus.vision.extractor import DLinkNetExtractor, SAMRoadExtractor, VisionConfig
 from argus.vision.postprocess import fill_gaps, postprocess_mask, skeletonize
 from argus.vision.tiling import generate_tiles, stitch_predictions

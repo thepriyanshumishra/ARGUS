@@ -1,6 +1,7 @@
 """Integration tests for CLI commands."""
 
 import os
+
 os.environ["ARGUS_TESTING"] = "1"
 
 import subprocess

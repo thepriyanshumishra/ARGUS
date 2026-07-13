@@ -7,7 +7,7 @@ import './index.css'
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { theme } = useDashboardStore()
-  
+
   useEffect(() => {
     const root = document.documentElement
     if (theme === 'dark') {

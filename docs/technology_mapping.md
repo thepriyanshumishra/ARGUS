@@ -297,35 +297,35 @@ dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
     "pandas>=2.0",
-    
+
     # GIS
     "rasterio>=1.3",
     "geopandas>=0.13",
     "shapely>=2.0",
     "pyproj>=3.6",
-    
+
     # Graph
     "networkx>=3.1",
     "scikit-image>=0.21",   # for skeletonize
     "scikit-learn>=1.3",    # transitive via analytics
-    
+
     # ML / Vision
     "torch>=2.0",
     "torchvision>=0.15",
     "opencv-python>=4.8",
-    
+
     # Config
     "omegaconf>=2.3",
     "pyyaml>=6.0",
-    
+
     # Logging
     "loguru>=0.7",
-    
+
     # Dashboard
     "streamlit>=1.28",
     "pydeck>=0.8",
     "folium>=0.15",        # fallback
-    
+
     # CLI
     "typer>=0.9",
 ]

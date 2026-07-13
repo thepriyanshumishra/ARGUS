@@ -2,11 +2,10 @@
 
 import networkx as nx
 import pytest
-from shapely.geometry import Polygon
-
 from argus.core.errors import InvalidScenarioError
 from argus.core.types import RoadGraph
 from argus.simulation.simulator import DisasterSimulatorImpl, ScenarioConfig, load_scenario
+from shapely.geometry import Polygon
 
 
 def _make_grid_graph(n_rows: int = 3, n_cols: int = 3) -> nx.MultiDiGraph:

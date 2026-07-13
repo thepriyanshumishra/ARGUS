@@ -7,8 +7,8 @@ import argparse
 import hashlib
 import sys
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.request import urlretrieve
-from urllib.error import URLError, HTTPError
 
 # Known checkpoint URLs (update as needed)
 CHECKPOINTS: dict[str, dict[str, str]] = {
@@ -46,13 +46,13 @@ def download_file(url: str, dest: Path, description: str = "") -> bool:
     try:
         print(f"Downloading {description} from {url}")
         print(f"  -> {dest}")
-        
+
         def reporthook(block_num, block_size, total_size):
             if total_size > 0:
                 percent = min(100, (block_num * block_size * 100) // total_size)
                 sys.stdout.write(f"\r  Progress: {percent}%")
                 sys.stdout.flush()
-        
+
         urlretrieve(url, dest, reporthook)
         print("\n  Done!")
         return True
@@ -64,22 +64,20 @@ def download_file(url: str, dest: Path, description: str = "") -> bool:
 def main():
     parser = argparse.ArgumentParser(description="Download model checkpoints for ARGUS")
     parser.add_argument(
-        "--output-dir", 
-        type=Path, 
+        "--output-dir",
+        type=Path,
         default=Path("assets/checkpoints"),
-        help="Output directory for checkpoints"
+        help="Output directory for checkpoints",
     )
     parser.add_argument(
         "--models",
         nargs="+",
         choices=list(CHECKPOINTS.keys()) + ["all"],
         default=["all"],
-        help="Models to download"
+        help="Models to download",
     )
     parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force re-download even if file exists"
+        "--force", action="store_true", help="Force re-download even if file exists"
     )
     args = parser.parse_args()
 
@@ -110,10 +108,10 @@ def main():
 
         if download_file(info["url"], dest, info["description"]):
             if verify_checksum(dest, info["sha256"]):
-                print(f"  Verified!")
+                print("  Verified!")
                 success_count += 1
             else:
-                print(f"  Warning: Checksum verification failed!")
+                print("  Warning: Checksum verification failed!")
                 dest.unlink(missing_ok=True)
         else:
             print(f"  Failed to download {model_name}")

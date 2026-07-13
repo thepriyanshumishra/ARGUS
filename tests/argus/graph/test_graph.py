@@ -3,7 +3,6 @@
 import networkx as nx
 import numpy as np
 import pytest
-
 from argus.core.errors import InvalidMaskError, MissingGeoMetadataError
 from argus.core.types import RoadGraph, RoadMask
 from argus.graph.builder import RoadGraphBuilderImpl

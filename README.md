@@ -4,8 +4,8 @@
 
 > **An AI-Powered Urban Mobility Decision Support Platform**
 >
-> Bharatiya Antariksh Hackathon (BAH) 2026  
-> Problem Statement 4  
+> Bharatiya Antariksh Hackathon (BAH) 2026
+> Problem Statement 4
 > Route Resilience: Occlusion-Robust Road Extraction & Graph-Theoretic Criticality Analysis for Urban Mobility
 
 ---

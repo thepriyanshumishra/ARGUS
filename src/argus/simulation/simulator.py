@@ -8,7 +8,7 @@ from typing import Any
 
 import networkx as nx
 import yaml
-from shapely.geometry import Point, shape, LineString
+from shapely.geometry import LineString, Point, shape
 
 from argus.core.errors import InvalidScenarioError
 from argus.core.logging import get_logger
@@ -29,7 +29,9 @@ def pixel_to_coords(px_x: float, px_y: float, transform: list[float] | None) -> 
     return lon, lat
 
 
-def get_edge_geom(u_data: dict, v_data: dict, edata: dict, transform: list[float] | None) -> LineString:
+def get_edge_geom(
+    u_data: dict, v_data: dict, edata: dict, transform: list[float] | None
+) -> LineString:
     pixels = edata.get("path_pixels", [])
     if len(pixels) >= 2:
         coords = [pixel_to_coords(px, py, transform) for px, py in pixels]
@@ -151,7 +153,11 @@ class DisasterSimulatorImpl(DisasterSimulator):
     # ------------------------------------------------------------------
 
     def _apply_flood(
-        self, graph: nx.MultiDiGraph, scenario: ScenarioConfig, delta: _SimDelta, transform: list[float] | None = None
+        self,
+        graph: nx.MultiDiGraph,
+        scenario: ScenarioConfig,
+        delta: _SimDelta,
+        transform: list[float] | None = None,
     ) -> nx.MultiDiGraph:
         """Remove nodes and edges within flood polygon."""
         region = shape(scenario.affected_region)
@@ -183,9 +189,7 @@ class DisasterSimulatorImpl(DisasterSimulator):
             edge_geom = get_edge_geom(u_data, v_data, data, transform)
             if region.intersects(edge_geom):
                 edges_to_remove.append((u, v, k))
-                delta.removed_edges.append(
-                    {"u": u, "v": v, "key": k, "reason": "flooded_segment"}
-                )
+                delta.removed_edges.append({"u": u, "v": v, "key": k, "reason": "flooded_segment"})
 
         # Remove the edges, then remove the nodes
         for u, v, k in edges_to_remove:
@@ -197,7 +201,11 @@ class DisasterSimulatorImpl(DisasterSimulator):
         return graph
 
     def _apply_bridge_collapse(
-        self, graph: nx.MultiDiGraph, scenario: ScenarioConfig, delta: _SimDelta, transform: list[float] | None = None
+        self,
+        graph: nx.MultiDiGraph,
+        scenario: ScenarioConfig,
+        delta: _SimDelta,
+        transform: list[float] | None = None,
     ) -> nx.MultiDiGraph:
         """Remove bridge edges within affected region."""
         bridges = [
@@ -223,7 +231,11 @@ class DisasterSimulatorImpl(DisasterSimulator):
         return graph
 
     def _apply_road_blockage(
-        self, graph: nx.MultiDiGraph, scenario: ScenarioConfig, delta: _SimDelta, transform: list[float] | None = None
+        self,
+        graph: nx.MultiDiGraph,
+        scenario: ScenarioConfig,
+        delta: _SimDelta,
+        transform: list[float] | None = None,
     ) -> nx.MultiDiGraph:
         """Block roads by increasing edge weights proportionally to severity."""
         region = shape(scenario.affected_region)

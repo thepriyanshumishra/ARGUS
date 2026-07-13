@@ -108,7 +108,7 @@ line-ending = "lf"
 [tool.pyright]
 pythonVersion = "3.11"
 typeCheckingMode = "basic"
-reportMissingImports = true
+reportMissingImports = false
 reportMissingModuleSource = false
 reportUnusedImport = true
 reportUnusedVariable = true

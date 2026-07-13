@@ -4,14 +4,14 @@ import { Zap, ChevronLeft, Globe, GitBranch, Layers, Package, BarChart3, Network
 import { cn } from '../utils/cn'
 
 export function Toolbar() {
-  const { 
-    viewMode, 
-    setViewMode, 
-    colorScheme, 
-    setColorScheme, 
-    codebaseMemoryAvailable, 
-    loading, 
-    toggleSidebar, 
+  const {
+    viewMode,
+    setViewMode,
+    colorScheme,
+    setColorScheme,
+    codebaseMemoryAvailable,
+    loading,
+    toggleSidebar,
     sidebarOpen,
     theme,
     setTheme,
@@ -24,7 +24,7 @@ export function Toolbar() {
         <button onClick={toggleSidebar} className="p-2 rounded-lg hover:bg-dark-700/50 transition-colors" aria-label="Toggle sidebar">
           <ChevronLeft className="w-5 h-5 text-dark-300" />
         </button>
-        
+
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center shadow-[0_0_12px_rgba(14,165,233,0.4)]">
             <ZapIcon className="w-5 h-5 text-white" />

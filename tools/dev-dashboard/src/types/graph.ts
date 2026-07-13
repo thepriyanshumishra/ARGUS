@@ -11,7 +11,7 @@ export interface GraphNode {
   metadata?: Record<string, any>
 }
 
-export type NodeType = 
+export type NodeType =
   | 'directory'
   | 'package'
   | 'module'
@@ -37,7 +37,7 @@ export interface GraphEdge {
   metadata?: Record<string, any>
 }
 
-export type EdgeType = 
+export type EdgeType =
   | 'imports'
   | 'contains'
   | 'inherits'

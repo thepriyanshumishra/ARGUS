@@ -630,9 +630,10 @@ def dashboard(
     # Determine the project root (3 levels up from cli/main.py: cli -> argus -> src -> root)
     project_root = Path(__file__).resolve().parent.parent.parent.parent
     app_path = Path(__file__).resolve().parent.parent / "dashboard" / "app.py"
-    
+
     # Propagate current env and override Arrow memory pool to prevent mimalloc segfaults on macOS threads
     import os
+
     env = os.environ.copy()
     env["ARROW_DEFAULT_MEMORY_POOL"] = "system"
 

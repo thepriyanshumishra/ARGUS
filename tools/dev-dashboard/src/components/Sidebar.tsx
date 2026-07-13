@@ -47,7 +47,7 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ open = true, onClose }: SidebarProps) {
-  const { 
+  const {
     searchQuery,
     setSearchQuery,
     sidebarOpen,
@@ -89,7 +89,7 @@ export function Sidebar({ open = true, onClose }: SidebarProps) {
   const activeLayerFilters = Object.values(layerFilters).filter(Boolean).length
 
   return (
-    <aside 
+    <aside
       className={cn(
         'flex flex-col bg-dark-950/95 backdrop-blur-xl border-r border-dark-700/50 transition-all duration-300',
         open ? 'w-72 min-w-[288px]' : 'w-0 min-w-0 overflow-hidden'
@@ -128,21 +128,21 @@ export function Sidebar({ open = true, onClose }: SidebarProps) {
 
         {/* Quick Actions */}
         <div className="px-4 py-2 border-b border-dark-700/50 flex gap-2">
-          <button 
-            onClick={clearFilters} 
+          <button
+            onClick={clearFilters}
             className="flex-1 py-2 px-3 text-xs font-medium rounded-lg bg-dark-800 border border-dark-600 text-dark-300 hover:bg-dark-700 hover:text-dark-100 transition-colors flex items-center justify-center gap-1"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             Reset
           </button>
-          <button 
+          <button
             onClick={() => {
               // Select all node types
               NODE_TYPES.forEach(t => setNodeTypeFilter(t.key, true))
               EDGE_TYPES.forEach(t => setEdgeTypeFilter(t.key, true))
               MODULES.forEach(m => setModuleFilter(m, true))
               LAYERS.forEach(l => setLayerFilter(l, true))
-            }} 
+            }}
             className="flex-1 py-2 px-3 text-xs font-medium rounded-lg bg-primary-500/10 border border-primary-500/30 text-primary-400 hover:bg-primary-500/20 transition-colors flex items-center justify-center gap-1"
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
@@ -284,7 +284,7 @@ interface FilterSectionProps {
 function FilterSection({ title, icon, expanded, onToggle, count, badge, children }: FilterSectionProps) {
   return (
     <div className="bg-dark-900/50 rounded-xl border border-dark-700/50 overflow-hidden">
-      <button 
+      <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-3 hover:bg-dark-800/50 transition-colors"
       >

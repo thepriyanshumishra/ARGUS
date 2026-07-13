@@ -26,7 +26,7 @@ def write_report(status, verdict, observations, notes, follow_up):
         "follow_up": follow_up,
     }
     REPORT_PATH.write_text(json.dumps(report, indent=2))
-    print(f"\n=== V4 Report ===")
+    print("\n=== V4 Report ===")
     print(json.dumps(report, indent=2))
 
 
@@ -92,7 +92,9 @@ def main():
             failed_imports.append(name)
             print(f"  [FAIL] {name} — {e}")
 
-    observations.append(f"Dependency imports: {sum(1 for v in import_results.values() if v['status'] == 'ok')}/{len(deps)} ok")
+    observations.append(
+        f"Dependency imports: {sum(1 for v in import_results.values() if v['status'] == 'ok')}/{len(deps)} ok"
+    )
     if failed_imports:
         observations.append(f"Failed: {', '.join(failed_imports)}")
         notes.append(f"Import failures: {failed_imports}")
@@ -103,35 +105,41 @@ def main():
     print("[Part 2] Validating graph serialization (GraphML + Pickle) ...")
     print("─" * 50)
 
-    import networkx as nx
-    import numpy as np
+    import os
     import pickle
     import tempfile
-    import os
+
+    import networkx as nx
+    import numpy as np
 
     # Create a test graph with realistic attributes
     G = nx.MultiDiGraph()
 
     # Add nodes with attributes
     for i in range(10):
-        G.add_node(i,
-                   lat=28.6 + i * 0.001,
-                   lon=77.2 + i * 0.001,
-                   x=float(i * 50),
-                   y=float(i * 50),
-                   betweenness=0.5 + 0.05 * i,
-                   is_articulation=bool(i % 3 == 0),
-                   degree=i % 5)
+        G.add_node(
+            i,
+            lat=28.6 + i * 0.001,
+            lon=77.2 + i * 0.001,
+            x=float(i * 50),
+            y=float(i * 50),
+            betweenness=0.5 + 0.05 * i,
+            is_articulation=bool(i % 3 == 0),
+            degree=i % 5,
+        )
 
     # Add edges with attributes
     edges_added = 0
     for i in range(9):
         length = np.random.uniform(100, 500)
-        G.add_edge(i, i + 1,
-                   length_m=float(length),
-                   weight=float(length),
-                   is_bridge=bool(i == 4),
-                   name=f"Road_{i}_{i+1}")
+        G.add_edge(
+            i,
+            i + 1,
+            length_m=float(length),
+            weight=float(length),
+            is_bridge=bool(i == 4),
+            name=f"Road_{i}_{i+1}",
+        )
         edges_added += 1
 
     # Add a few more edges for complexity
@@ -156,9 +164,9 @@ def main():
         edges_match = G.number_of_edges() == Gml.number_of_edges()
 
         # Check specific attributes
-        has_lat = all('lat' in dict(Gml.nodes(data=True))[n] for n in list(Gml.nodes())[:3])
-        has_lon = all('lon' in dict(Gml.nodes(data=True))[n] for n in list(Gml.nodes())[:3])
-        has_length = any('length_m' in dict(Gml.edges(data=True))[e] for e in list(Gml.edges())[:3])
+        has_lat = all("lat" in dict(Gml.nodes(data=True))[n] for n in list(Gml.nodes())[:3])
+        has_lon = all("lon" in dict(Gml.nodes(data=True))[n] for n in list(Gml.nodes())[:3])
+        has_length = any("length_m" in dict(Gml.edges(data=True))[e] for e in list(Gml.edges())[:3])
 
         serialization_results["graphml"] = {
             "status": "ok" if (nodes_match and edges_match and has_lat and has_lon) else "partial",
@@ -168,7 +176,9 @@ def main():
             "has_lon": has_lon,
             "has_length": has_length,
         }
-        print(f"  [OK] GraphML: nodes={nodes_match}, edges={edges_match}, attrs=lat:{has_lat} lon:{has_lon} len:{has_length}")
+        print(
+            f"  [OK] GraphML: nodes={nodes_match}, edges={edges_match}, attrs=lat:{has_lat} lon:{has_lon} len:{has_length}"
+        )
     except Exception as e:
         serialization_results["graphml"] = {"status": "fail", "error": str(e)[:200]}
         print(f"  [FAIL] GraphML: {e}")
@@ -178,9 +188,9 @@ def main():
     try:
         with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as f:
             pkl_path = f.name
-        with open(pkl_path, 'wb') as f:
+        with open(pkl_path, "wb") as f:
             pickle.dump(G, f)
-        with open(pkl_path, 'rb') as f:
+        with open(pkl_path, "rb") as f:
             Gpk = pickle.load(f)
         os.unlink(pkl_path)
 
@@ -189,8 +199,8 @@ def main():
         edges_match = G.number_of_edges() == Gpk.number_of_edges()
         # Check float attribute precision
         if nodes_match:
-            orig_lat = G.nodes[0].get('lat')
-            loaded_lat = Gpk.nodes[0].get('lat')
+            orig_lat = G.nodes[0].get("lat")
+            loaded_lat = Gpk.nodes[0].get("lat")
             attrs_match = orig_lat == loaded_lat
         else:
             attrs_match = False
@@ -210,23 +220,26 @@ def main():
     print("[Test] GeoJSON conversion (road graph → GeoJSON) ...")
     try:
         import json as json_mod
+
         # Build FeatureCollection for edges
         features = []
         for u, v, data in G.edges(data=True):
-            if 'lat' in G.nodes[u] and 'lon' in G.nodes[u] and 'lat' in G.nodes[v] and 'lon' in G.nodes[v]:
+            if (
+                "lat" in G.nodes[u]
+                and "lon" in G.nodes[u]
+                and "lat" in G.nodes[v]
+                and "lon" in G.nodes[v]
+            ):
                 feature = {
                     "type": "Feature",
                     "geometry": {
                         "type": "LineString",
                         "coordinates": [
-                            [G.nodes[u]['lon'], G.nodes[u]['lat']],
-                            [G.nodes[v]['lon'], G.nodes[v]['lat']]
-                        ]
+                            [G.nodes[u]["lon"], G.nodes[u]["lat"]],
+                            [G.nodes[v]["lon"], G.nodes[v]["lat"]],
+                        ],
                     },
-                    "properties": {
-                        "length_m": data.get('length_m', 0),
-                        "u": u, "v": v
-                    }
+                    "properties": {"length_m": data.get("length_m", 0), "u": u, "v": v},
                 }
                 features.append(feature)
 
@@ -244,14 +257,13 @@ def main():
         print(f"  [FAIL] GeoJSON: {e}")
 
     # Summary
-    all_serial_ok = all(
-        r.get("status") == "ok"
-        for r in serialization_results.values()
-    )
+    all_serial_ok = all(r.get("status") == "ok" for r in serialization_results.values())
 
-    observations.append(f"Serialization: GraphML={serialization_results.get('graphml', {}).get('status', 'fail')}, "
-                        f"Pickle={serialization_results.get('pickle', {}).get('status', 'fail')}, "
-                        f"GeoJSON={serialization_results.get('geojson', {}).get('status', 'fail')}")
+    observations.append(
+        f"Serialization: GraphML={serialization_results.get('graphml', {}).get('status', 'fail')}, "
+        f"Pickle={serialization_results.get('pickle', {}).get('status', 'fail')}, "
+        f"GeoJSON={serialization_results.get('geojson', {}).get('status', 'fail')}"
+    )
 
     # Verdict
     if all_imports_ok and all_serial_ok:
@@ -269,8 +281,13 @@ def main():
         verdict = "fails"
         status = "fail"
 
-    write_report(status, verdict, "; ".join(observations), "; ".join(notes),
-                 "; ".join(follow_up) if follow_up else "None")
+    write_report(
+        status,
+        verdict,
+        "; ".join(observations),
+        "; ".join(notes),
+        "; ".join(follow_up) if follow_up else "None",
+    )
     return 0 if status == "pass" else 1
 
 

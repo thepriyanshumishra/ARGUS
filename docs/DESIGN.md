@@ -1150,8 +1150,3 @@ The signature typographic move is the inline highlight: one phrase per headline 
     }
   }
 }
-
-
-
-
-

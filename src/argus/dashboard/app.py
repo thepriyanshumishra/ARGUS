@@ -7,6 +7,7 @@ route comparison, accessibility, and exports.
 from __future__ import annotations
 
 import os
+
 # Force Arrow to use system memory allocator instead of mimalloc to prevent SIGSEGV crashes on macOS threads
 os.environ["ARROW_DEFAULT_MEMORY_POOL"] = "system"
 
@@ -24,6 +25,7 @@ from omegaconf import OmegaConf
 from argus.core.logging import get_logger
 
 log = get_logger(__name__)
+
 
 def _find_project_root() -> Path:
     """Walk up from this file to find the project root (contains configs/)."""
@@ -43,17 +45,23 @@ try:
     _dashboard_cfg = OmegaConf.load(str(_DASHBOARD_CFG_PATH))
 except Exception:
     # Fallback: minimal in-memory config so the app never shows a blank screen
-    from omegaconf import DictConfig
-    _dashboard_cfg = OmegaConf.create({
-        "streamlit": {"page_title": "ARGUS", "page_icon": "🛰️", "layout": "wide", "initial_sidebar_state": "expanded"},
-        "map": {"default_center": [12.97, 77.59], "default_zoom": 12},
-        "layers": {
-            "road_color": [0, 100, 200],
-            "critical_node_color": [255, 0, 0],
-            "route_color": [0, 200, 0],
-            "flood_color": [0, 0, 255, 100],
-        },
-    })
+    _dashboard_cfg = OmegaConf.create(
+        {
+            "streamlit": {
+                "page_title": "ARGUS",
+                "page_icon": "🛰️",
+                "layout": "wide",
+                "initial_sidebar_state": "expanded",
+            },
+            "map": {"default_center": [12.97, 77.59], "default_zoom": 12},
+            "layers": {
+                "road_color": [0, 100, 200],
+                "critical_node_color": [255, 0, 0],
+                "route_color": [0, 200, 0],
+                "flood_color": [0, 0, 255, 100],
+            },
+        }
+    )
 
 
 st.set_page_config(
@@ -74,6 +82,7 @@ DEMO_DATA: dict[str, str] = {
 # ---------------------------------------------------------------------------
 # PREMIUM STYLES — injected once at startup
 # ---------------------------------------------------------------------------
+
 
 def _inject_styles() -> None:
     st.markdown(
@@ -446,6 +455,7 @@ def _inject_styles() -> None:
 # SESSION STATE
 # ---------------------------------------------------------------------------
 
+
 def _init_session_state() -> None:
     defaults = {
         "graph": None,
@@ -471,6 +481,7 @@ def _init_session_state() -> None:
 # PIPELINE STATUS HELPERS
 # ---------------------------------------------------------------------------
 
+
 def _pipeline_status() -> dict[str, bool]:
     return {
         "graph": st.session_state.get("graph") is not None,
@@ -491,13 +502,15 @@ def _render_pipeline_bar() -> None:
     done_list = [v for _, v in steps]
     parts = []
     for i, (label, done) in enumerate(steps):
-        dot_cls = "done" if done else ("active" if (i == 0 or done_list[i - 1]) and not done else "")
+        dot_cls = (
+            "done" if done else ("active" if (i == 0 or done_list[i - 1]) and not done else "")
+        )
         step_cls = "done" if done else ("active" if dot_cls == "active" else "")
         icon = "✓" if done else "○"
         parts.append(
             f'<div class="pipeline-step {step_cls}">'
             f'  <div class="pipeline-dot {dot_cls}"></div>{icon} {label}'
-            f'</div>'
+            f"</div>"
         )
         if i < len(steps) - 1:
             line_cls = "done" if done else ""
@@ -509,6 +522,7 @@ def _render_pipeline_bar() -> None:
 # MAIN ENTRY
 # ---------------------------------------------------------------------------
 
+
 def run_dashboard() -> None:
     """Main dashboard entry point."""
     _inject_styles()
@@ -517,7 +531,11 @@ def run_dashboard() -> None:
 
     # Hero header
     g = st.session_state.get("graph")
-    status_badge = '<span class="argus-badge">🟢 Active</span>' if g else '<span class="argus-badge">⚪ No Data</span>'
+    status_badge = (
+        '<span class="argus-badge">🟢 Active</span>'
+        if g
+        else '<span class="argus-badge">⚪ No Data</span>'
+    )
     st.markdown(
         f"""
         <div class="argus-hero">
@@ -533,15 +551,17 @@ def run_dashboard() -> None:
 
     _render_pipeline_bar()
 
-    tab_p, tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🛰️ Image Processor",
-        "🏠 Overview",
-        "🗺️ Road Network",
-        "📊 Criticality",
-        "📋 Report",
-        "🌊 Simulation",
-        "🛣️ Routing",
-    ])
+    tab_p, tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        [
+            "🛰️ Image Processor",
+            "🏠 Overview",
+            "🗺️ Road Network",
+            "📊 Criticality",
+            "📋 Report",
+            "🌊 Simulation",
+            "🛣️ Routing",
+        ]
+    )
 
     with tab_p:
         _tab_image_processor()
@@ -562,6 +582,7 @@ def run_dashboard() -> None:
 # ---------------------------------------------------------------------------
 # SIDEBAR
 # ---------------------------------------------------------------------------
+
 
 def _render_sidebar() -> None:
     with st.sidebar:
@@ -625,6 +646,7 @@ def _render_sidebar() -> None:
 # SIDEBAR — QUICK LOAD
 # ---------------------------------------------------------------------------
 
+
 def _sidebar_quick_load() -> None:
     if st.button("▶ Load Demo Dataset", use_container_width=True):
         with st.spinner("Loading pre-computed demo data..."):
@@ -661,9 +683,12 @@ def _load_demo_data() -> None:
 # SIDEBAR — GRAPH LOADER
 # ---------------------------------------------------------------------------
 
+
 def _sidebar_graph_loader() -> None:
-    mode = st.radio("Load Mode", ["Pre-computed Graph (.pkl)", "Process Satellite Image"], key="load_mode_radio")
-    
+    mode = st.radio(
+        "Load Mode", ["Pre-computed Graph (.pkl)", "Process Satellite Image"], key="load_mode_radio"
+    )
+
     if mode == "Pre-computed Graph (.pkl)":
         uploaded = st.file_uploader(
             "Upload graph (.pkl)",
@@ -703,13 +728,19 @@ def _sidebar_graph_loader() -> None:
                 st.session_state["uploaded_image_name"] = uploaded_img.name
                 st.session_state["extracted_mask"] = None
                 st.session_state["extracted_road_mask_obj"] = None
-        
+
         # Collapsible Advanced Settings (Keeps sidebar clean and user friendly)
         with st.expander("🛠️ Advanced Settings"):
-            model_type = st.selectbox("Inference Model", ["sam_road", "dlinknet"], key="extractor_model")
-            threshold = st.slider("Binarization Threshold", 0.1, 0.9, 0.5, step=0.05, key="extractor_threshold")
-            use_mock = st.checkbox("Quick Demo Mode (Uses Mock Mask)", value=True, key="use_demo_mock_cb")
-        
+            model_type = st.selectbox(
+                "Inference Model", ["sam_road", "dlinknet"], key="extractor_model"
+            )
+            threshold = st.slider(
+                "Binarization Threshold", 0.1, 0.9, 0.5, step=0.05, key="extractor_threshold"
+            )
+            use_mock = st.checkbox(
+                "Quick Demo Mode (Uses Mock Mask)", value=True, key="use_demo_mock_cb"
+            )
+
         if st.session_state.get("uploaded_image_bytes") is not None:
             if st.button("▶ Run Road Extraction", use_container_width=True):
                 with st.spinner("Extracting roads via Deep Learning..."):
@@ -718,20 +749,22 @@ def _sidebar_graph_loader() -> None:
                         mock_mask_path = _PROJECT_ROOT / "assets" / "samples" / "demo_mask.png"
                         if mock_mask_path.exists():
                             from PIL import Image
+
                             img_pil = Image.open(mock_mask_path).convert("L")
                             mask_arr = np.array(img_pil) / 255.0
                             mask_arr = (mask_arr > 0.5).astype(np.uint8)
                             st.session_state["extracted_mask"] = mask_arr
-                            
+
                             # Construct a mock RoadMask object so graph builder doesn't crash
                             from argus.core.types import RoadMask
+
                             st.session_state["extracted_road_mask_obj"] = RoadMask(
                                 mask=mask_arr,
                                 crs="EPSG:4326",
                                 bounds=(77.58, 12.96, 77.60, 12.98),
                                 transform=(0.0001, 0.0, 77.58, 0.0, -0.0001, 12.98),
                                 model_name="sam_road_mock",
-                                model_version="1.0"
+                                model_version="1.0",
                             )
                         else:
                             st.error("Mock mask file not found in assets/samples/demo_mask.png")
@@ -739,8 +772,12 @@ def _sidebar_graph_loader() -> None:
                         try:
                             # Live model inference
                             from argus.data.imagery import RasterImageLoader
-                            from argus.vision import VisionConfig, SAMRoadExtractor, DLinkNetExtractor
-                            
+                            from argus.vision import (
+                                DLinkNetExtractor,
+                                SAMRoadExtractor,
+                                VisionConfig,
+                            )
+
                             suffix = Path(st.session_state["uploaded_image_name"]).suffix
                             with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
                                 tmp.write(st.session_state["uploaded_image_bytes"])
@@ -748,17 +785,15 @@ def _sidebar_graph_loader() -> None:
                                 loader = RasterImageLoader(target_crs="EPSG:4326")
                                 img = loader.load_and_reproject(tmp.name)
                                 Path(tmp.name).unlink(missing_ok=True)
-                            
+
                             vision_config = VisionConfig(
-                                model_type=model_type,
-                                threshold=threshold,
-                                device="auto"
+                                model_type=model_type, threshold=threshold, device="auto"
                             )
                             if model_type == "sam_road":
                                 extractor = SAMRoadExtractor(vision_config)
                             else:
                                 extractor = DLinkNetExtractor(vision_config)
-                                
+
                             road_mask = extractor.extract(img)
                             st.session_state["extracted_mask"] = road_mask.mask
                             st.session_state["extracted_road_mask_obj"] = road_mask
@@ -788,6 +823,7 @@ def _sidebar_graph_loader() -> None:
 # SIDEBAR — ANALYSIS
 # ---------------------------------------------------------------------------
 
+
 def _sidebar_analysis_trigger() -> None:
     if st.session_state.get("graph") is None:
         st.caption("Load a graph first.")
@@ -814,6 +850,7 @@ def _sidebar_analysis_trigger() -> None:
 # ---------------------------------------------------------------------------
 # SIDEBAR — SIMULATION
 # ---------------------------------------------------------------------------
+
 
 def _sidebar_simulation() -> None:
     graph = st.session_state.get("graph")
@@ -850,6 +887,7 @@ def _sidebar_simulation() -> None:
 # SIDEBAR — ROUTING
 # ---------------------------------------------------------------------------
 
+
 def _sidebar_routing() -> None:
     graph = st.session_state.get("graph")
     if graph is None:
@@ -858,7 +896,9 @@ def _sidebar_routing() -> None:
 
     from argus.routing import RouteQuery, RouterImpl
 
-    algo = st.selectbox("Algorithm", ["dijkstra", "astar", "k_shortest"], label_visibility="collapsed")
+    algo = st.selectbox(
+        "Algorithm", ["dijkstra", "astar", "k_shortest"], label_visibility="collapsed"
+    )
     k_val = st.slider("K alternatives", 1, 5, 1) if algo == "k_shortest" else 1
     origin_str = st.text_input("Origin (lat,lon)", placeholder="12.97, 77.59", key="route_origin")
     dest_str = st.text_input("Destination (lat,lon)", placeholder="12.99, 77.61", key="route_dest")
@@ -910,6 +950,7 @@ def _sidebar_routing() -> None:
 # SIDEBAR — EXPORT
 # ---------------------------------------------------------------------------
 
+
 def _sidebar_exports() -> None:
     if st.session_state.get("graph") is None:
         st.caption("Load a graph first.")
@@ -925,7 +966,9 @@ def _sidebar_exports() -> None:
 
             sr = st.session_state.get("simulation_result")
             if sr is not None:
-                zf.writestr("simulation_impact.json", json.dumps(sr.impact_report, indent=2, default=str))
+                zf.writestr(
+                    "simulation_impact.json", json.dumps(sr.impact_report, indent=2, default=str)
+                )
 
             rr = st.session_state.get("route_result")
             if rr is not None and rr.routes:
@@ -949,6 +992,7 @@ def _sidebar_exports() -> None:
 # ---------------------------------------------------------------------------
 # CONFIG HELPERS
 # ---------------------------------------------------------------------------
+
 
 def _cfg_road_color() -> str:
     rgb = _dashboard_cfg.layers.road_color
@@ -992,7 +1036,12 @@ def _component_count(graph: Any) -> int:
 def _is_valid_geographic_bounds(bounds: tuple[float, float, float, float]) -> bool:
     """Return True if bounds are within valid EPSG:4326 lat/lon limits."""
     min_lon, min_lat, max_lon, max_lat = bounds
-    return -90 <= min_lat <= 90 and -90 <= max_lat <= 90 and -180 <= min_lon <= 180 and -180 <= max_lon <= 180
+    return (
+        -90 <= min_lat <= 90
+        and -90 <= max_lat <= 90
+        and -180 <= min_lon <= 180
+        and -180 <= max_lon <= 180
+    )
 
 
 def _get_map_coords(graph: Any, lat: float, lon: float) -> tuple[float, float]:
@@ -1000,12 +1049,12 @@ def _get_map_coords(graph: Any, lat: float, lon: float) -> tuple[float, float]:
     bounds = graph.bounds
     if _is_valid_geographic_bounds(bounds):
         return lat, lon
-    
+
     # Scale and center around the configured default center (Bangalore)
     min_lon, min_lat, max_lon, max_lat = bounds
     center_lat_orig = (min_lat + max_lat) / 2
     center_lon_orig = (min_lon + max_lon) / 2
-    
+
     # 0.0001 degrees is ~11 meters.
     # Scale coordinates so the entire graph spans a reasonable local area
     lat_scaled = float(_dashboard_cfg.map.default_center[0]) + (lat - center_lat_orig) * 0.0001
@@ -1089,7 +1138,11 @@ def _render_empty_map() -> None:
 
 
 def _section_header(icon: str, title: str, subtitle: str = "") -> None:
-    sub_html = f'<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">{subtitle}</div>' if subtitle else ""
+    sub_html = (
+        f'<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">{subtitle}</div>'
+        if subtitle
+        else ""
+    )
     st.markdown(
         f"""
         <div style="margin-bottom:20px;">
@@ -1108,15 +1161,15 @@ def _stat_card(icon: str, label: str, value: str, sub: str = "") -> str:
         f'  <div class="stat-icon">{icon}</div>'
         f'  <div class="stat-label">{label}</div>'
         f'  <div class="stat-value">{value}</div>'
-        f'  {sub_html}'
-        f'</div>'
+        f"  {sub_html}"
+        f"</div>"
     )
 
 
 def _render_stat_row(cards: list[tuple[str, str, str, str]]) -> None:
     """Render a row of stat cards. Each card is (icon, label, value, sub)."""
     cols = st.columns(len(cards))
-    for col, (icon, label, value, sub) in zip(cols, cards):
+    for col, (icon, label, value, sub) in zip(cols, cards, strict=False):
         with col:
             st.markdown(_stat_card(icon, label, value, sub), unsafe_allow_html=True)
 
@@ -1124,6 +1177,7 @@ def _render_stat_row(cards: list[tuple[str, str, str, str]]) -> None:
 # ---------------------------------------------------------------------------
 # TAB 0 — OVERVIEW
 # ---------------------------------------------------------------------------
+
 
 def _tab_overview() -> None:
     graph = st.session_state.get("graph")
@@ -1141,12 +1195,24 @@ def _tab_overview() -> None:
     rt_count = len(rr.routes) if rr and rr.routes else 0
     crit_aps = cr.summary.get("resilience", {}).get("articulation_points_count", 0) if cr else "—"
     sim_nodes_removed = len(sr.impact_report.get("removed_nodes", [])) if sr else "—"
-    _render_stat_row([
-        ("🗺️", "Nodes", f"{graph.node_count:,}", f"{graph.edge_count:,} edges"),
-        ("📊", "Art. Points", str(crit_aps), "critical junctions" if cr else "run analysis"),
-        ("🌊", "Removed Nodes", str(sim_nodes_removed), "after disaster" if sr else "run simulation"),
-        ("🛣️", "Routes", str(rt_count) if rt_count else "—", "computed paths" if rt_count else "run routing"),
-    ])
+    _render_stat_row(
+        [
+            ("🗺️", "Nodes", f"{graph.node_count:,}", f"{graph.edge_count:,} edges"),
+            ("📊", "Art. Points", str(crit_aps), "critical junctions" if cr else "run analysis"),
+            (
+                "🌊",
+                "Removed Nodes",
+                str(sim_nodes_removed),
+                "after disaster" if sr else "run simulation",
+            ),
+            (
+                "🛣️",
+                "Routes",
+                str(rt_count) if rt_count else "—",
+                "computed paths" if rt_count else "run routing",
+            ),
+        ]
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
     _section_header("🗺️", "Unified Map", "All active layers overlaid")
@@ -1160,7 +1226,9 @@ def _tab_overview() -> None:
             show_sim = st.checkbox("Simulation layer", value=sr is not None)
         with lc3:
             show_route = st.checkbox("Routing layer", value=rr is not None)
-        _render_overview_map(graph, cr if show_crit else None, sr if show_sim else None, rr if show_route else None)
+        _render_overview_map(
+            graph, cr if show_crit else None, sr if show_sim else None, rr if show_route else None
+        )
 
     with col_r:
         st.metric("Nodes", f"{graph.node_count:,}")
@@ -1199,7 +1267,10 @@ def _render_overview_map(
                 lat_scaled, lon_scaled = _get_map_coords(graph, lat, lon)
                 locations.append((lat_scaled, lon_scaled))
             folium.PolyLine(
-                locations=locations, color=color, weight=5, opacity=0.9,
+                locations=locations,
+                color=color,
+                weight=5,
+                opacity=0.9,
                 popup=f"Route {i+1} ({route['properties']['length_m']:.0f}m)",
             ).add_to(m)
 
@@ -1211,7 +1282,9 @@ def _overlay_criticality_on(m: Any, result: Any) -> None:
 
     graph = result.annotated_graph
     metric_key = "betweenness"
-    values = [float(d.get(metric_key, 0)) for _, d in graph.graph.nodes(data=True) if d.get(metric_key)]
+    values = [
+        float(d.get(metric_key, 0)) for _, d in graph.graph.nodes(data=True) if d.get(metric_key)
+    ]
     max_val = max(values) if values else 1.0
     for node_id, data in graph.graph.nodes(data=True):
         lat = data.get("lat", 0)
@@ -1222,9 +1295,13 @@ def _overlay_criticality_on(m: Any, result: Any) -> None:
         color = _heatmap_color(ratio)
         is_ap = data.get("is_articulation", 0)
         folium.CircleMarker(
-            location=[lat_scaled, lon_scaled], radius=6 if is_ap else 4,
+            location=[lat_scaled, lon_scaled],
+            radius=6 if is_ap else 4,
             color="#cf222e" if is_ap else color,
-            fill=True, fill_color=color, fill_opacity=0.8, weight=2 if is_ap else 1,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.8,
+            weight=2 if is_ap else 1,
         ).add_to(m)
 
 
@@ -1244,7 +1321,10 @@ def _overlay_simulation_on(m: Any, simulation: Any, orig_graph: Any) -> None:
             v_lat_scaled, v_lon_scaled = _get_map_coords(orig_graph, v_lat, v_lon)
             folium.PolyLine(
                 locations=[(u_lat_scaled, u_lon_scaled), (v_lat_scaled, v_lon_scaled)],
-                color=_cfg_flood_color(), weight=3, opacity=0.7, dash_array="8,6",
+                color=_cfg_flood_color(),
+                weight=3,
+                opacity=0.7,
+                dash_array="8,6",
             ).add_to(m)
     for entry in impact.get("removed_nodes", []):
         nid = entry["id"]
@@ -1253,8 +1333,12 @@ def _overlay_simulation_on(m: Any, simulation: Any, orig_graph: Any) -> None:
             lon = orig_graph.graph.nodes[nid].get("lon", 0)
             lat_scaled, lon_scaled = _get_map_coords(orig_graph, lat, lon)
             folium.CircleMarker(
-                location=[lat_scaled, lon_scaled], radius=5,
-                color=_cfg_flood_color(), fill=True, fill_color=_cfg_flood_color(), fill_opacity=0.6,
+                location=[lat_scaled, lon_scaled],
+                radius=5,
+                color=_cfg_flood_color(),
+                fill=True,
+                fill_color=_cfg_flood_color(),
+                fill_opacity=0.6,
                 popup=f"Removed: {nid}",
             ).add_to(m)
 
@@ -1295,6 +1379,7 @@ def _overlay_sim_affected_region(m: Any) -> None:
 # TAB 1 — ROAD NETWORK
 # ---------------------------------------------------------------------------
 
+
 def _tab_road_network() -> None:
     graph = st.session_state.get("graph")
     if graph is None:
@@ -1304,8 +1389,9 @@ def _tab_road_network() -> None:
         return
 
     _section_header(
-        "🗺️", "Road Network",
-        "Node colours: 🟢 high-degree junctions · 🟠 degree-2 roads · 🔴 leaf/dangling nodes"
+        "🗺️",
+        "Road Network",
+        "Node colours: 🟢 high-degree junctions · 🟠 degree-2 roads · 🔴 leaf/dangling nodes",
     )
 
     col_map, col_stats = st.columns([3, 1])
@@ -1323,7 +1409,6 @@ def _tab_road_network() -> None:
 
 
 def _render_network_map(graph: Any) -> None:
-    import folium
     from streamlit_folium import st_folium
 
     m = _folium_base_map(graph)
@@ -1336,16 +1421,20 @@ def _render_network_map(graph: Any) -> None:
 # TAB 2 — CRITICALITY
 # ---------------------------------------------------------------------------
 
+
 def _tab_criticality() -> None:
     result = st.session_state.get("criticality_result")
     if result is None:
         _section_header("📊", "Criticality Analysis")
-        st.info("Run criticality analysis from the sidebar to identify structurally important nodes and edges.")
+        st.info(
+            "Run criticality analysis from the sidebar to identify structurally important nodes and edges."
+        )
         _render_empty_map()
         return
 
     available_metrics = [
-        m for m in result.summary.get("metrics_computed", [])
+        m
+        for m in result.summary.get("metrics_computed", [])
         if m in ("betweenness", "closeness", "degree")
     ]
     if not available_metrics:
@@ -1356,14 +1445,23 @@ def _tab_criticality() -> None:
     brs = res.get("bridges_count", 0)
     vuln = res.get("vulnerability_ratio")
 
-    _section_header("📊", "Criticality Analysis", "Network resilience and structural vulnerability scoring")
+    _section_header(
+        "📊", "Criticality Analysis", "Network resilience and structural vulnerability scoring"
+    )
 
-    _render_stat_row([
-        ("🔴", "Articulation Pts", str(aps), "removal disconnects graph"),
-        ("🌉", "Bridges", str(brs), "critical single edges"),
-        ("⚠️", "Vulnerability", f"{vuln:.1%}" if vuln is not None else "—", "ratio of critical nodes"),
-        ("📏", "Avg Path Len", str(res.get("avg_path_length", "—")), "network diameter proxy"),
-    ])
+    _render_stat_row(
+        [
+            ("🔴", "Articulation Pts", str(aps), "removal disconnects graph"),
+            ("🌉", "Bridges", str(brs), "critical single edges"),
+            (
+                "⚠️",
+                "Vulnerability",
+                f"{vuln:.1%}" if vuln is not None else "—",
+                "ratio of critical nodes",
+            ),
+            ("📏", "Avg Path Len", str(res.get("avg_path_length", "—")), "network diameter proxy"),
+        ]
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1382,8 +1480,14 @@ def _render_criticality_map(result: Any, metric: str) -> None:
     graph = result.annotated_graph
     m = _folium_base_map(graph)
 
-    metric_key = {"betweenness": "betweenness", "closeness": "closeness", "degree": "degree_centrality"}.get(metric, "betweenness")
-    values = [float(d.get(metric_key, 0)) for _, d in graph.graph.nodes(data=True) if d.get(metric_key)]
+    metric_key = {
+        "betweenness": "betweenness",
+        "closeness": "closeness",
+        "degree": "degree_centrality",
+    }.get(metric, "betweenness")
+    values = [
+        float(d.get(metric_key, 0)) for _, d in graph.graph.nodes(data=True) if d.get(metric_key)
+    ]
     max_val = max(values) if values else 1.0
 
     for u, v, _key, data in graph.graph.edges(keys=True, data=True):
@@ -1397,7 +1501,8 @@ def _render_criticality_map(result: Any, metric: str) -> None:
         folium.PolyLine(
             locations=[(u_lat_scaled, u_lon_scaled), (v_lat_scaled, v_lon_scaled)],
             color="#cf222e" if is_bridge else "#c9d1d9",
-            weight=3 if is_bridge else 1, opacity=0.6,
+            weight=3 if is_bridge else 1,
+            opacity=0.6,
         ).add_to(m)
 
     for node_id, data in graph.graph.nodes(data=True):
@@ -1409,18 +1514,30 @@ def _render_criticality_map(result: Any, metric: str) -> None:
         color = _heatmap_color(ratio)
         is_ap = data.get("is_articulation", 0)
         folium.CircleMarker(
-            location=[lat_scaled, lon_scaled], radius=8 if is_ap else 5,
+            location=[lat_scaled, lon_scaled],
+            radius=8 if is_ap else 5,
             color="#cf222e" if is_ap else color,
-            fill=True, fill_color=color, fill_opacity=0.85, weight=2 if is_ap else 1,
-            popup=f"Node {node_id}<br>{metric}={val:.4f}" + ("<br>🔴 Articulation Point" if is_ap else ""),
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.85,
+            weight=2 if is_ap else 1,
+            popup=f"Node {node_id}<br>{metric}={val:.4f}"
+            + ("<br>🔴 Articulation Point" if is_ap else ""),
         ).add_to(m)
 
     st_folium(m, use_container_width=True, height=580, returned_objects=[])
 
 
 def _render_criticality_stats(result: Any, metric: str) -> None:
-    st.markdown('<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Top Nodes</div>', unsafe_allow_html=True)
-    key = {"betweenness": "top_nodes_betweenness", "closeness": "top_nodes_closeness", "degree": "top_nodes_degree"}.get(metric, "top_nodes_betweenness")
+    st.markdown(
+        '<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Top Nodes</div>',
+        unsafe_allow_html=True,
+    )
+    key = {
+        "betweenness": "top_nodes_betweenness",
+        "closeness": "top_nodes_closeness",
+        "degree": "top_nodes_degree",
+    }.get(metric, "top_nodes_betweenness")
     top_list = result.report.get(key, [])[:10]
     if top_list:
         import pandas as pd
@@ -1428,19 +1545,31 @@ def _render_criticality_stats(result: Any, metric: str) -> None:
         df = pd.DataFrame(top_list, columns=["Node ID", "Score"])
         st.dataframe(df.style.format({"Score": "{:.5f}"}), use_container_width=True, height=260)
 
-    st.markdown('<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px 0;">Articulation Points</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px 0;">Articulation Points</div>',
+        unsafe_allow_html=True,
+    )
     aps = result.report.get("articulation_points", [])[:8]
     if aps:
         for ap in aps:
-            st.markdown(f'<span style="background:#ffebe9;color:#cf222e;border-radius:4px;padding:2px 8px;font-size:0.78rem;margin:2px;display:inline-block;">Node {ap}</span>', unsafe_allow_html=True)
+            st.markdown(
+                f'<span style="background:#ffebe9;color:#cf222e;border-radius:4px;padding:2px 8px;font-size:0.78rem;margin:2px;display:inline-block;">Node {ap}</span>',
+                unsafe_allow_html=True,
+            )
     else:
         st.caption("None found")
 
-    st.markdown('<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px 0;">Bridge Edges</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 8px 0;">Bridge Edges</div>',
+        unsafe_allow_html=True,
+    )
     bridges = result.report.get("bridges", [])[:5]
     if bridges:
         for u, v in bridges:
-            st.markdown(f'<span style="background:#fff1e5;color:#bc4c00;border-radius:4px;padding:2px 8px;font-size:0.78rem;margin:2px;display:inline-block;">({u} → {v})</span>', unsafe_allow_html=True)
+            st.markdown(
+                f'<span style="background:#fff1e5;color:#bc4c00;border-radius:4px;padding:2px 8px;font-size:0.78rem;margin:2px;display:inline-block;">({u} → {v})</span>',
+                unsafe_allow_html=True,
+            )
     else:
         st.caption("None found")
 
@@ -1449,8 +1578,11 @@ def _render_criticality_stats(result: Any, metric: str) -> None:
 # TAB 3 — REPORT
 # ---------------------------------------------------------------------------
 
+
 def _tab_report() -> None:
-    _section_header("📋", "Full Analysis Report", "JSON export of the complete criticality computation")
+    _section_header(
+        "📋", "Full Analysis Report", "JSON export of the complete criticality computation"
+    )
     result = st.session_state.get("criticality_result")
     if result is None:
         st.info("Run criticality analysis from the sidebar to generate the report.")
@@ -1486,6 +1618,7 @@ def _tab_report() -> None:
 # TAB 4 — SIMULATION
 # ---------------------------------------------------------------------------
 
+
 def _tab_simulation() -> None:
     result = st.session_state.get("simulation_result")
     if result is None:
@@ -1501,17 +1634,36 @@ def _tab_simulation() -> None:
     _section_header("🌊", f"Scenario: {scenario_id}", f"Source: {source}")
 
     # Impact stat cards
-    _render_stat_row([
-        ("🔴", "Nodes Removed", str(len(impact.get("removed_nodes", []))), "flood/collapse"),
-        ("❌", "Edges Removed", str(len(impact.get("removed_edges", []))), "severed connections"),
-        ("🟡", "Edges Reweighted", str(len(impact.get("reweighted_edges", []))), "partial damage"),
-        ("🔀", "New Isolated", str(impact.get("new_isolated_components", 0)), "disconnected clusters"),
-    ])
+    _render_stat_row(
+        [
+            ("🔴", "Nodes Removed", str(len(impact.get("removed_nodes", []))), "flood/collapse"),
+            (
+                "❌",
+                "Edges Removed",
+                str(len(impact.get("removed_edges", []))),
+                "severed connections",
+            ),
+            (
+                "🟡",
+                "Edges Reweighted",
+                str(len(impact.get("reweighted_edges", []))),
+                "partial damage",
+            ),
+            (
+                "🔀",
+                "New Isolated",
+                str(impact.get("new_isolated_components", 0)),
+                "disconnected clusters",
+            ),
+        ]
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Before / After maps
-    _section_header("🗺️", "Before vs After", "Blue = road network · Red dashed = removed · Orange = reweighted")
+    _section_header(
+        "🗺️", "Before vs After", "Blue = road network · Red dashed = removed · Orange = reweighted"
+    )
     map_l, map_r = st.columns(2)
     graph = st.session_state["graph"]
 
@@ -1521,7 +1673,6 @@ def _tab_simulation() -> None:
             'background:#dafbe1;border:1px solid #aceebb;border-radius:8px;padding:6px;">✅ Before Disaster</div>',
             unsafe_allow_html=True,
         )
-        import folium
         from streamlit_folium import st_folium
 
         m_before = _folium_base_map(graph)
@@ -1545,6 +1696,7 @@ def _tab_simulation() -> None:
         removed_nodes = impact.get("removed_nodes", [])
         if removed_nodes:
             import pandas as pd
+
             df = pd.DataFrame(removed_nodes[:20])
             st.dataframe(df, use_container_width=True, height=220)
         else:
@@ -1555,6 +1707,7 @@ def _tab_simulation() -> None:
         removed_edges = impact.get("removed_edges", [])
         if removed_edges:
             import pandas as pd
+
             df = pd.DataFrame(removed_edges[:20])
             st.dataframe(df, use_container_width=True, height=220)
         else:
@@ -1585,7 +1738,12 @@ def _render_simulation_after_map(result: Any, graph: Any) -> None:
         u_lat_scaled, u_lon_scaled = _get_map_coords(graph, u_lat, u_lon)
         v_lat_scaled, v_lon_scaled = _get_map_coords(graph, v_lat, v_lon)
         edge_color = "#f0883e" if (u, v) in reweighted_edges_set else _cfg_road_color()
-        folium.PolyLine(locations=[(u_lat_scaled, u_lon_scaled), (v_lat_scaled, v_lon_scaled)], color=edge_color, weight=2, opacity=0.7).add_to(m)
+        folium.PolyLine(
+            locations=[(u_lat_scaled, u_lon_scaled), (v_lat_scaled, v_lon_scaled)],
+            color=edge_color,
+            weight=2,
+            opacity=0.7,
+        ).add_to(m)
 
     for entry in impact.get("removed_edges", []):
         u_id, v_id = entry["u"], entry["v"]
@@ -1598,7 +1756,10 @@ def _render_simulation_after_map(result: Any, graph: Any) -> None:
             v_lat_scaled, v_lon_scaled = _get_map_coords(graph, v_lat, v_lon)
             folium.PolyLine(
                 locations=[(u_lat_scaled, u_lon_scaled), (v_lat_scaled, v_lon_scaled)],
-                color=_cfg_flood_color(), weight=3, opacity=0.7, dash_array="8,6",
+                color=_cfg_flood_color(),
+                weight=3,
+                opacity=0.7,
+                dash_array="8,6",
             ).add_to(m)
 
     for entry in impact.get("removed_nodes", []):
@@ -1608,8 +1769,12 @@ def _render_simulation_after_map(result: Any, graph: Any) -> None:
             lon = graph.graph.nodes[nid].get("lon", 0)
             lat_scaled, lon_scaled = _get_map_coords(graph, lat, lon)
             folium.CircleMarker(
-                location=[lat_scaled, lon_scaled], radius=6, color=_cfg_flood_color(),
-                fill=True, fill_color=_cfg_flood_color(), fill_opacity=0.6,
+                location=[lat_scaled, lon_scaled],
+                radius=6,
+                color=_cfg_flood_color(),
+                fill=True,
+                fill_color=_cfg_flood_color(),
+                fill_opacity=0.6,
                 popup=f"Removed: {nid}",
             ).add_to(m)
 
@@ -1620,6 +1785,7 @@ def _render_simulation_after_map(result: Any, graph: Any) -> None:
 # ---------------------------------------------------------------------------
 # TAB 5 — ROUTING
 # ---------------------------------------------------------------------------
+
 
 def _tab_routing() -> None:
     result = st.session_state.get("route_result")
@@ -1642,19 +1808,30 @@ def _tab_routing() -> None:
     _section_header("🛣️", "Routing Results", f"{len(routes)} route(s) computed")
 
     # Route metrics
-    _render_stat_row([
-        ("📏", "Distance", f"{props['length_m']:.0f} m", "shortest path length"),
-        ("⏱️", "Travel Time", f"{props['travel_time_s']:.0f} s", f"{props.get('speed_kmh', 40):.0f} km/h assumed"),
-        ("🔀", "Routes Found", str(len(routes)), "total computed"),
-        ("📍", "Nodes", str(len(props.get("nodes", []))), "in path"),
-    ])
+    _render_stat_row(
+        [
+            ("📏", "Distance", f"{props['length_m']:.0f} m", "shortest path length"),
+            (
+                "⏱️",
+                "Travel Time",
+                f"{props['travel_time_s']:.0f} s",
+                f"{props.get('speed_kmh', 40):.0f} km/h assumed",
+            ),
+            ("🔀", "Routes Found", str(len(routes)), "total computed"),
+            ("📍", "Nodes", str(len(props.get("nodes", []))), "in path"),
+        ]
+    )
 
     # Comparison banner
     cmp = st.session_state.get("route_comparison")
     if cmp:
         status = cmp.get("status", "unknown")
         delta = cmp.get("delta_length_m", 0) or 0
-        chip_cls = {"unchanged": "chip-green", "detour": "chip-orange", "unreachable": "chip-red"}.get(status, "chip-blue")
+        chip_cls = {
+            "unchanged": "chip-green",
+            "detour": "chip-orange",
+            "unreachable": "chip-red",
+        }.get(status, "chip-blue")
         delta_sign = f"+{delta:.0f}" if delta > 0 else f"{delta:.0f}"
         st.markdown(
             f"""
@@ -1714,13 +1891,15 @@ def _tab_routing() -> None:
     rows = []
     for i, r in enumerate(routes):
         p = r["properties"]
-        rows.append({
-            "Route": f"Route {i+1}",
-            "Length (m)": f"{p['length_m']:.1f}",
-            "Time (s)": f"{p['travel_time_s']:.1f}",
-            "Speed (km/h)": f"{p.get('speed_kmh', 40):.0f}",
-            "Nodes": len(p.get("nodes", [])),
-        })
+        rows.append(
+            {
+                "Route": f"Route {i+1}",
+                "Length (m)": f"{p['length_m']:.1f}",
+                "Time (s)": f"{p['travel_time_s']:.1f}",
+                "Speed (km/h)": f"{p.get('speed_kmh', 40):.0f}",
+                "Nodes": len(p.get("nodes", [])),
+            }
+        )
     import pandas as pd
 
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
@@ -1751,7 +1930,10 @@ def _render_route_map(graph: Any, routes: list[dict]) -> None:
             lat_scaled, lon_scaled = _get_map_coords(graph, lat, lon)
             locations.append((lat_scaled, lon_scaled))
         folium.PolyLine(
-            locations=locations, color=color, weight=5, opacity=0.9,
+            locations=locations,
+            color=color,
+            weight=5,
+            opacity=0.9,
             popup=f"Route {i+1} ({route['properties']['length_m']:.1f}m)",
         ).add_to(m)
 
@@ -1762,10 +1944,18 @@ def _render_route_map(graph: Any, routes: list[dict]) -> None:
             d_lon, d_lat = first_coords[-1]
             o_lat_scaled, o_lon_scaled = _get_map_coords(graph, o_lat, o_lon)
             d_lat_scaled, d_lon_scaled = _get_map_coords(graph, d_lat, d_lon)
-            for lat_c, lon_c, label, color in [(o_lat_scaled, o_lon_scaled, "Origin", "#2da44e"), (d_lat_scaled, d_lon_scaled, "Destination", "#cf222e")]:
+            for lat_c, lon_c, label, color in [
+                (o_lat_scaled, o_lon_scaled, "Origin", "#2da44e"),
+                (d_lat_scaled, d_lon_scaled, "Destination", "#cf222e"),
+            ]:
                 folium.CircleMarker(
-                    location=[lat_c, lon_c], radius=9, color=color,
-                    fill=True, fill_color=color, fill_opacity=1.0, popup=label,
+                    location=[lat_c, lon_c],
+                    radius=9,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    fill_opacity=1.0,
+                    popup=label,
                 ).add_to(m)
 
     # Unreachable overlay
@@ -1776,71 +1966,101 @@ def _render_route_map(graph: Any, routes: list[dict]) -> None:
                 d_lat, d_lon = dest
                 d_lat_scaled, d_lon_scaled = _get_map_coords(graph, d_lat, d_lon)
                 folium.CircleMarker(
-                    location=[d_lat_scaled, d_lon_scaled], radius=5, color="#cf222e",
-                    fill=True, fill_color="#cf222e", fill_opacity=0.3, popup="Unreachable",
+                    location=[d_lat_scaled, d_lon_scaled],
+                    radius=5,
+                    color="#cf222e",
+                    fill=True,
+                    fill_color="#cf222e",
+                    fill_opacity=0.3,
+                    popup="Unreachable",
                 ).add_to(m)
-
 
     st_folium(m, use_container_width=True, height=500, returned_objects=[])
 
 
 def _tab_image_processor() -> None:
-    _section_header("🛰️", "Road Extraction & Topological Reconstruction", "Process satellite imagery and generate continuous vector routing networks")
-    
+    _section_header(
+        "🛰️",
+        "Road Extraction & Topological Reconstruction",
+        "Process satellite imagery and generate continuous vector routing networks",
+    )
+
     img_bytes = st.session_state.get("uploaded_image_bytes")
     if img_bytes is None:
-        st.info("👈 Upload a satellite image in the sidebar and click **Run Road Extraction** to begin.")
-        
+        st.info(
+            "👈 Upload a satellite image in the sidebar and click **Run Road Extraction** to begin."
+        )
+
         st.markdown("<br>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown('<div class="stat-card" style="text-align:center;height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
-                        '<div style="font-size:3rem;margin-bottom:12px;">🛰️</div>'
-                        '<div style="font-weight:700;font-size:0.9rem;color:#24292f;">1. Input Imagery</div>'
-                        '<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">Upload raw or multispectral remote sensing bands (Cartosat, Resourcesat, Sentinel).</div>'
-                        '</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="stat-card" style="text-align:center;height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
+                '<div style="font-size:3rem;margin-bottom:12px;">🛰️</div>'
+                '<div style="font-weight:700;font-size:0.9rem;color:#24292f;">1. Input Imagery</div>'
+                '<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">Upload raw or multispectral remote sensing bands (Cartosat, Resourcesat, Sentinel).</div>'
+                "</div>",
+                unsafe_allow_html=True,
+            )
         with col2:
-            st.markdown('<div class="stat-card" style="text-align:center;height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
-                        '<div style="font-size:3rem;margin-bottom:12px;">🟢</div>'
-                        '<div style="font-weight:700;font-size:0.9rem;color:#24292f;">2. Routable Topology</div>'
-                        '<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">Deep learning extracts roads and resolves vegetation occlusions into routing graphs.</div>'
-                        '</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="stat-card" style="text-align:center;height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
+                '<div style="font-size:3rem;margin-bottom:12px;">🟢</div>'
+                '<div style="font-weight:700;font-size:0.9rem;color:#24292f;">2. Routable Topology</div>'
+                '<div style="font-size:0.8rem;color:#57606a;margin-top:4px;">Deep learning extracts roads and resolves vegetation occlusions into routing graphs.</div>'
+                "</div>",
+                unsafe_allow_html=True,
+            )
         return
 
     col_img, col_mask = st.columns(2)
-    
+
     with col_img:
-        st.markdown('<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Input Satellite Image</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Input Satellite Image</div>',
+            unsafe_allow_html=True,
+        )
         st.image(img_bytes, use_container_width=True)
-        
+
     mask_arr = st.session_state.get("extracted_mask")
     with col_mask:
-        st.markdown('<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Extracted Road Mask</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="font-size:0.82rem;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Extracted Road Mask</div>',
+            unsafe_allow_html=True,
+        )
         if mask_arr is not None:
             st.image(mask_arr, clamp=True, use_container_width=True)
         else:
-            st.markdown('<div style="height:250px;background:#f6f8fa;border:1px dashed #d0d7de;border-radius:10px;display:flex;justify-content:center;align-items:center;color:#57606a;font-size:0.88rem;">'
-                        'Click <b>Run Road Extraction</b> in the sidebar to run ML inference.'
-                        '</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div style="height:250px;background:#f6f8fa;border:1px dashed #d0d7de;border-radius:10px;display:flex;justify-content:center;align-items:center;color:#57606a;font-size:0.88rem;">'
+                "Click <b>Run Road Extraction</b> in the sidebar to run ML inference."
+                "</div>",
+                unsafe_allow_html=True,
+            )
 
     if mask_arr is not None:
         st.markdown("<br><hr>", unsafe_allow_html=True)
-        st.markdown('<div class="section-header">⚙️ Topological Healing & Skeletonization</div>', unsafe_allow_html=True)
-        st.caption("Apply morphological thinning and graph-theoretic bridging to heal occlusions and construct a NetworkX graph.")
-        
+        st.markdown(
+            '<div class="section-header">⚙️ Topological Healing & Skeletonization</div>',
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            "Apply morphological thinning and graph-theoretic bridging to heal occlusions and construct a NetworkX graph."
+        )
+
         col_ctrls, col_explain = st.columns([1, 1])
-        
+
         with col_ctrls:
             snap_dist = st.slider("Snap distance (pixels)", 1.0, 30.0, 10.0, step=1.0)
             merge_dist = st.slider("Merge distance (pixels)", 1.0, 20.0, 5.0, step=1.0)
             min_comp_size = st.slider("Min component size (nodes)", 2, 50, 10, step=1)
             simplify_tol = st.slider("Simplification tolerance (pixels)", 0.1, 10.0, 2.0, step=0.1)
-            
+
             if st.button("🗺️ Build Routable Graph", use_container_width=True):
                 with st.spinner("Extracting skeleton & healing topology..."):
                     try:
                         from argus.graph.builder import RoadGraphBuilderImpl
-                        
+
                         graph_cfg = {
                             "cleaning": {
                                 "remove_self_loops": True,
@@ -1854,12 +2074,12 @@ def _tab_image_processor() -> None:
                             "simplification": {
                                 "enabled": True,
                                 "tolerance": simplify_tol,
-                            }
+                            },
                         }
-                        
+
                         builder = RoadGraphBuilderImpl(config=graph_cfg)
                         road_mask_obj = st.session_state["extracted_road_mask_obj"]
-                        
+
                         # Reset all previous results when a new graph is created
                         st.session_state["criticality_result"] = None
                         st.session_state["simulation_result"] = None
@@ -1867,15 +2087,19 @@ def _tab_image_processor() -> None:
                         st.session_state["route_comparison"] = None
                         st.session_state["route_modified_result"] = None
                         st.session_state["route_accessibility"] = None
-                        
+
                         road_graph = builder.build(road_mask_obj)
                         st.session_state["graph"] = road_graph
-                        st.session_state["graph_source"] = f"extracted_{st.session_state['uploaded_image_name']}"
-                        st.success("Graph constructed successfully! Explore the other tabs to run simulation/routing.")
+                        st.session_state["graph_source"] = (
+                            f"extracted_{st.session_state['uploaded_image_name']}"
+                        )
+                        st.success(
+                            "Graph constructed successfully! Explore the other tabs to run simulation/routing."
+                        )
                         st.rerun()
                     except Exception as e:
                         st.error(f"Failed to build graph: {e}")
-                        
+
         with col_explain:
             st.markdown(
                 """
@@ -1891,7 +2115,7 @@ def _tab_image_processor() -> None:
                     </ul>
                 </div>
                 """,
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
 

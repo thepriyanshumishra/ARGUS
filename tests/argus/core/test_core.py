@@ -2,7 +2,6 @@
 
 import networkx as nx
 import numpy as np
-
 from argus.core.config import load_config
 from argus.core.logging import get_logger, setup_logging
 from argus.core.protocols import (

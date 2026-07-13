@@ -257,7 +257,7 @@ export const ExtractionStep: React.FC = () => {
                 <div className="relative w-full h-full bg-soot">
                   {/* Base original image slightly dimmed */}
                   <img src={imageUrl} alt="Base" className="absolute inset-0 w-full h-full object-cover opacity-35" />
-                  
+
                   {/* SVG overlay rendering nodes and edges */}
                   <svg
                     viewBox={`0 0 ${graphData.imgWidth} ${graphData.imgHeight}`}

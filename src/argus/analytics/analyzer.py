@@ -260,7 +260,9 @@ class CriticalityAnalyzerImpl(CriticalityAnalyzer):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _generate_report(graph: nx.MultiDiGraph, results: dict[str, Any], top_n: int) -> dict[str, Any]:
+    def _generate_report(
+        graph: nx.MultiDiGraph, results: dict[str, Any], top_n: int
+    ) -> dict[str, Any]:
         report: dict[str, Any] = {}
 
         if "betweenness" in results:
@@ -288,33 +290,37 @@ class CriticalityAnalyzerImpl(CriticalityAnalyzer):
         if "articulation_points" in results:
             aps = results["articulation_points"][:top_n]
             report["articulation_points"] = aps
-            
+
             aps_coords = []
             for n in aps:
                 node_data = graph.nodes[n]
-                aps_coords.append({
-                    "id": n,
-                    "lat": float(node_data.get("lat", 0.0)),
-                    "lon": float(node_data.get("lon", 0.0))
-                })
+                aps_coords.append(
+                    {
+                        "id": n,
+                        "lat": float(node_data.get("lat", 0.0)),
+                        "lon": float(node_data.get("lon", 0.0)),
+                    }
+                )
             report["articulation_points_with_coordinates"] = aps_coords
 
         if "bridges" in results:
             bg = results["bridges"][:top_n]
             report["bridges"] = bg
-            
+
             bridges_coords = []
             for u, v in bg:
                 u_data = graph.nodes[u]
                 v_data = graph.nodes[v]
-                bridges_coords.append({
-                    "u": u,
-                    "v": v,
-                    "u_lat": float(u_data.get("lat", 0.0)),
-                    "u_lon": float(u_data.get("lon", 0.0)),
-                    "v_lat": float(v_data.get("lat", 0.0)),
-                    "v_lon": float(v_data.get("lon", 0.0))
-                })
+                bridges_coords.append(
+                    {
+                        "u": u,
+                        "v": v,
+                        "u_lat": float(u_data.get("lat", 0.0)),
+                        "u_lon": float(u_data.get("lon", 0.0)),
+                        "v_lat": float(v_data.get("lat", 0.0)),
+                        "v_lon": float(v_data.get("lon", 0.0)),
+                    }
+                )
             report["bridges_with_coordinates"] = bridges_coords
 
         return report

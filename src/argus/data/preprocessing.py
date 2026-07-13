@@ -83,7 +83,9 @@ def reproject_image(
     )
 
 
-def normalize_image(data: np.ndarray, method: str = "minmax", percentiles: tuple[float, float] = (2.0, 98.0)) -> np.ndarray:
+def normalize_image(
+    data: np.ndarray, method: str = "minmax", percentiles: tuple[float, float] = (2.0, 98.0)
+) -> np.ndarray:
     """Normalize image data to [0, 1] range."""
     if method == "minmax":
         min_val = data.min()
@@ -116,10 +118,16 @@ def estimate_utm_crs(bounds: tuple[float, float, float, float], src_crs: str = "
     # If bounds is in projected CRS, convert to EPSG:4326 first to find lat/lon centroid
     if src_crs != "EPSG:4326":
         from pyproj import Transformer
+
         transformer = Transformer.from_crs(src_crs, "EPSG:4326", always_xy=True)
         lon1, lat1 = transformer.transform(bounds[0], bounds[1])
         lon2, lat2 = transformer.transform(bounds[2], bounds[3])
-        left, bottom, right, top = min(lon1, lon2), min(lat1, lat2), max(lon1, lon2), max(lat1, lat2)
+        left, bottom, right, top = (
+            min(lon1, lon2),
+            min(lat1, lat2),
+            max(lon1, lon2),
+            max(lat1, lat2),
+        )
     else:
         left, bottom, right, top = bounds
 

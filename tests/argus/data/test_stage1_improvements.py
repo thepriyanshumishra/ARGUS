@@ -1,34 +1,30 @@
 """Unit tests for Stage 1 improvements."""
 
-import os
-import pytest
-import numpy as np
-import rasterio
-from rasterio.crs import CRS
-from rasterio.transform import from_bounds
 import networkx as nx
-from omegaconf.errors import ValidationError
-
-from argus.core.config import load_config
+import numpy as np
+import pytest
+import rasterio
 from argus.core.types import RasterImage, RoadGraph
+from argus.data.cache import ArtifactCache, calculate_array_hash
 from argus.data.imagery import RasterImageLoader
 from argus.data.preprocessing import estimate_utm_crs, normalize_image
-from argus.data.cache import ArtifactCache, calculate_array_hash
+from omegaconf.errors import ValidationError
+from rasterio.crs import CRS
+from rasterio.transform import from_bounds
 
 
 def test_config_type_validation_invalid():
     """Verify that configuration schema validation catches type errors."""
-    from argus.core.config import load_config
     # Try loading a valid config to make sure loading works
     config = load_config("data")
     assert config is not None
 
     # Verify that load_config raises ValidationError if schema is violated
-    from omegaconf import OmegaConf
     from argus.core.config import SCHEMAS
+    from omegaconf import OmegaConf
 
     schema = OmegaConf.structured(SCHEMAS["data"])
-    
+
     # Passing an invalid type to supported_formats (e.g., integer instead of list)
     with pytest.raises(ValidationError):
         OmegaConf.merge(schema, {"supported_formats": 1234})
@@ -52,7 +48,7 @@ def test_percentile_normalization():
     # Create array with extreme outliers
     data = np.array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 10000], dtype=np.float32)
     norm = normalize_image(data, method="percentile", percentiles=(10.0, 90.0))
-    
+
     assert norm.min() == 0.0
     assert norm.max() == 1.0
     # Outliers should be clipped (the 10000 should be clipped to the 90th percentile)
@@ -101,7 +97,7 @@ def test_raster_loader_band_mapping_and_normalization(tmp_path):
 def test_cache_checksum_validation(tmp_path):
     """Verify hash validation during cache load."""
     cache = ArtifactCache(cache_dir=tmp_path)
-    
+
     img1 = RasterImage(
         data=np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8),
         crs="EPSG:4326",

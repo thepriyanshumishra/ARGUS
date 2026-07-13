@@ -12,10 +12,9 @@ Methodology:
 """
 
 import json
+import subprocess
 import sys
 import time
-import signal
-import subprocess
 from pathlib import Path
 
 REPORT_PATH = Path(__file__).parent / "report.json"
@@ -32,7 +31,7 @@ def write_report(status, verdict, observations, notes, follow_up):
         "follow_up": follow_up,
     }
     REPORT_PATH.write_text(json.dumps(report, indent=2))
-    print(f"\n=== V3 Report ===")
+    print("\n=== V3 Report ===")
     print(json.dumps(report, indent=2))
 
 
@@ -48,30 +47,48 @@ def main():
     print("[INFO] Checking Streamlit + PyDeck imports ...")
     try:
         import streamlit as st
+
         st_version = st.__version__
         print(f"[OK] streamlit {st_version}")
         observations.append(f"streamlit {st_version}")
     except ImportError as e:
-        write_report("fail", "fails", f"streamlit import failed: {e}",
-                     "Package not installed", "Install streamlit in validation venv")
+        write_report(
+            "fail",
+            "fails",
+            f"streamlit import failed: {e}",
+            "Package not installed",
+            "Install streamlit in validation venv",
+        )
         return 1
 
     try:
         import pydeck as pdk
+
         pdk_version = pdk.__version__
         print(f"[OK] pydeck {pdk_version}")
         observations.append(f"pydeck {pdk_version}")
     except ImportError as e:
-        write_report("fail", "fails", f"pydeck import failed: {e}",
-                     "Package not installed", "Install pydeck in validation venv")
+        write_report(
+            "fail",
+            "fails",
+            f"pydeck import failed: {e}",
+            "Package not installed",
+            "Install pydeck in validation venv",
+        )
         return 1
 
     try:
         import pandas as pd
-        print(f"[OK] pandas available")
+
+        print("[OK] pandas available")
     except ImportError as e:
-        write_report("fail", "fails", f"pandas import failed: {e}",
-                     "Package not installed", "Install pandas in validation venv")
+        write_report(
+            "fail",
+            "fails",
+            f"pandas import failed: {e}",
+            "Package not installed",
+            "Install pandas in validation venv",
+        )
         return 1
 
     # Step 2: Create synthetic road graph data
@@ -91,12 +108,14 @@ def main():
         for col in range(5):
             lat = base_lat + row * 0.005
             lon = base_lon + col * 0.005
-            nodes_data.append({
-                "id": node_id,
-                "lat": lat,
-                "lon": lon,
-                "criticality": 0.5 + 0.5 * (row * 5 + col) / 20  # mock criticality score
-            })
+            nodes_data.append(
+                {
+                    "id": node_id,
+                    "lat": lat,
+                    "lon": lon,
+                    "criticality": 0.5 + 0.5 * (row * 5 + col) / 20,  # mock criticality score
+                }
+            )
             node_ids[(row, col)] = node_id
             node_id += 1
 
@@ -105,26 +124,36 @@ def main():
         for col in range(4):
             u = node_ids[(row, col)]
             v = node_ids[(row, col + 1)]
-            edges_data.append({
-                "u": u, "v": v,
-                "lat1": nodes_data[u]["lat"], "lon1": nodes_data[u]["lon"],
-                "lat2": nodes_data[v]["lat"], "lon2": nodes_data[v]["lon"],
-                "length_m": 555.0,  # ~0.005 deg in meters
-                "name": f"Road_{row}_{col}"
-            })
+            edges_data.append(
+                {
+                    "u": u,
+                    "v": v,
+                    "lat1": nodes_data[u]["lat"],
+                    "lon1": nodes_data[u]["lon"],
+                    "lat2": nodes_data[v]["lat"],
+                    "lon2": nodes_data[v]["lon"],
+                    "length_m": 555.0,  # ~0.005 deg in meters
+                    "name": f"Road_{row}_{col}",
+                }
+            )
 
     # Vertical edges
     for row in range(3):
         for col in range(5):
             u = node_ids[(row, col)]
             v = node_ids[(row + 1, col)]
-            edges_data.append({
-                "u": u, "v": v,
-                "lat1": nodes_data[u]["lat"], "lon1": nodes_data[u]["lon"],
-                "lat2": nodes_data[v]["lat"], "lon2": nodes_data[v]["lon"],
-                "length_m": 555.0,
-                "name": f"Road_{row}_{col}_v"
-            })
+            edges_data.append(
+                {
+                    "u": u,
+                    "v": v,
+                    "lat1": nodes_data[u]["lat"],
+                    "lon1": nodes_data[u]["lon"],
+                    "lat2": nodes_data[v]["lat"],
+                    "lon2": nodes_data[v]["lon"],
+                    "length_m": 555.0,
+                    "name": f"Road_{row}_{col}_v",
+                }
+            )
 
     observations.append(f"Synthetic graph: {len(nodes_data)} nodes, {len(edges_data)} edges")
 
@@ -133,22 +162,18 @@ def main():
     # Build edge geometries as GeoJSON FeatureCollection
     edge_features = []
     for e in edges_data:
-        edge_features.append({
-            "type": "Feature",
-            "geometry": {
-                "type": "LineString",
-                "coordinates": [[e["lon1"], e["lat1"]], [e["lon2"], e["lat2"]]]
-            },
-            "properties": {
-                "name": e["name"],
-                "length_m": e["length_m"]
+        edge_features.append(
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[e["lon1"], e["lat1"]], [e["lon2"], e["lat2"]]],
+                },
+                "properties": {"name": e["name"], "length_m": e["length_m"]},
             }
-        })
+        )
 
-    edge_geojson = {
-        "type": "FeatureCollection",
-        "features": edge_features
-    }
+    edge_geojson = {"type": "FeatureCollection", "features": edge_features}
 
     # Build node dataframe for ScatterplotLayer
     node_df = pd.DataFrame(nodes_data)
@@ -168,8 +193,13 @@ def main():
         )
         observations.append("GeoJsonLayer created successfully")
     except Exception as e:
-        write_report("fail", "fails", f"GeoJsonLayer creation failed: {e}",
-                     "PyDeck API may have changed", "Check pydeck documentation")
+        write_report(
+            "fail",
+            "fails",
+            f"GeoJsonLayer creation failed: {e}",
+            "PyDeck API may have changed",
+            "Check pydeck documentation",
+        )
         return 1
 
     try:
@@ -183,8 +213,13 @@ def main():
         )
         observations.append("ScatterplotLayer created successfully")
     except Exception as e:
-        write_report("fail", "fails", f"ScatterplotLayer creation failed: {e}",
-                     "PyDeck API may have changed", "Check pydeck documentation")
+        write_report(
+            "fail",
+            "fails",
+            f"ScatterplotLayer creation failed: {e}",
+            "PyDeck API may have changed",
+            "Check pydeck documentation",
+        )
         return 1
 
     # Step 5: Build PyDeck deck
@@ -202,13 +237,18 @@ def main():
         )
         observations.append("pdk.Deck created successfully")
     except Exception as e:
-        write_report("fail", "fails", f"pdk.Deck creation failed: {e}",
-                     "PyDeck API may have changed", "Check pydeck documentation")
+        write_report(
+            "fail",
+            "fails",
+            f"pdk.Deck creation failed: {e}",
+            "PyDeck API may have changed",
+            "Check pydeck documentation",
+        )
         return 1
 
     # Step 6: Write the Streamlit app
     print("[INFO] Writing Streamlit dashboard app ...")
-    app_code = f'''
+    app_code = f"""
 import streamlit as st
 import pydeck as pdk
 import json
@@ -254,23 +294,34 @@ deck = pdk.Deck(
 
 st.pydeck_chart(deck, use_container_width=True)
 st.success("Dashboard renders successfully. Map should show road network.")
-    '''
+    """
     APP_PATH.write_text(app_code)
     print(f"[OK] Dashboard app written to {APP_PATH}")
 
     # Step 7: Launch Streamlit and verify
     print("[INFO] Launching Streamlit app (5s validation) ...")
     import os
+
     env = os.environ.copy()
     env["VIRTUAL_ENV"] = str(Path(__file__).parent.parent / ".venv")
 
     try:
         proc = subprocess.Popen(
-            [sys.executable, "-m", "streamlit", "run", str(APP_PATH),
-             "--server.headless", "true",
-             "--server.port", "8502",
-             "--server.enableCORS", "false",
-             "--global.developmentMode", "false"],
+            [
+                sys.executable,
+                "-m",
+                "streamlit",
+                "run",
+                str(APP_PATH),
+                "--server.headless",
+                "true",
+                "--server.port",
+                "8502",
+                "--server.enableCORS",
+                "false",
+                "--global.developmentMode",
+                "false",
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -315,7 +366,7 @@ st.success("Dashboard renders successfully. Map should show road network.")
             else:
                 stderr_output = proc.stderr.read() if proc.stderr else ""
                 print(f"[FAIL] Streamlit failed to start. stderr: {stderr_output[:300]}")
-                observations.append(f"Streamlit failed to start")
+                observations.append("Streamlit failed to start")
                 notes.append(f"stderr: {stderr_output[:300]}")
                 verdict = "fails"
                 status = "fail"

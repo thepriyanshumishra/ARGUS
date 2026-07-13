@@ -17,8 +17,8 @@ import sys
 import time
 from pathlib import Path
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
 REPORT_PATH = Path(__file__).parent / "report.json"
 
@@ -33,17 +33,16 @@ def write_report(status, verdict, observations, notes, follow_up):
         "follow_up": follow_up,
     }
     REPORT_PATH.write_text(json.dumps(report, indent=2))
-    print(f"\n=== V2 Report ===")
+    print("\n=== V2 Report ===")
     print(json.dumps(report, indent=2))
 
 
 def mark_junction_and_end_nodes(skel):
     """Identify junction (degree>=3) and endpoint (degree==1) pixels in skeleton."""
     from scipy.ndimage import convolve
-    kernel = np.array([[1, 1, 1],
-                       [1, 0, 1],
-                       [1, 1, 1]], dtype=np.uint8)
-    neighbor_count = convolve(skel.astype(np.uint8), kernel, mode='constant', cval=0)
+
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]], dtype=np.uint8)
+    neighbor_count = convolve(skel.astype(np.uint8), kernel, mode="constant", cval=0)
     junctions = (skel > 0) & (neighbor_count >= 3)
     endpoints = (skel > 0) & (neighbor_count == 1)
     return junctions, endpoints, neighbor_count
@@ -61,7 +60,7 @@ def skeleton_to_graph(skel):
 
     # Collect all node pixels (junctions and endpoints)
     node_mask = junctions | endpoints
-    node_coords = set(zip(*np.where(node_mask)))
+    node_coords = set(zip(*np.where(node_mask), strict=False))
 
     # If no nodes found, create synthetic ones
     if not node_coords:
@@ -81,7 +80,6 @@ def skeleton_to_graph(skel):
     traced_edges = set()
     for (y, x), nid in pixel_to_node.items():
         # Follow each direction from this node
-        from scipy.ndimage import label
         # Get 8-connected neighbors
         for dy in (-1, 0, 1):
             for dx in (-1, 0, 1):
@@ -145,8 +143,14 @@ def create_synthetic_graph():
     nid = 0
     for i in range(5):
         for j in range(5):
-            G.add_node(nid, y=float(i*50), x=float(j*50), lat=float(28.6 + i*0.001), lon=float(77.2 + j*0.001))
-            positions[nid] = (i*50, j*50)
+            G.add_node(
+                nid,
+                y=float(i * 50),
+                x=float(j * 50),
+                lat=float(28.6 + i * 0.001),
+                lon=float(77.2 + j * 0.001),
+            )
+            positions[nid] = (i * 50, j * 50)
             nid += 1
     # Horizontal edges
     for i in range(5):
@@ -168,6 +172,7 @@ def create_synthetic_graph():
 def build_synthetic_mask():
     """Create a synthetic binary road mask with known topology."""
     import cv2
+
     mask = np.zeros((512, 512), dtype=np.uint8)
     # Draw horizontal roads
     for y in range(50, 512, 100):
@@ -194,7 +199,8 @@ def main():
 
     # Step 1: Check dependencies
     from skimage.morphology import skeletonize
-    print(f"[OK] skimage available (skeletonize)")
+
+    print("[OK] skimage available (skeletonize)")
 
     observations = []
     notes = []
@@ -204,8 +210,11 @@ def main():
     sknw_available = False
     try:
         import sknw
+
         sknw_available = True
-        print(f"[OK] sknw imported successfully (v{sknw.__version__ if hasattr(sknw, '__version__') else '?'})")
+        print(
+            f"[OK] sknw imported successfully (v{sknw.__version__ if hasattr(sknw, '__version__') else '?'})"
+        )
     except ImportError as e:
         notes.append(f"sknw import failed: {e}. Pure-Python fallback used.")
         print(f"[WARN] sknw not available: {e}")
@@ -231,6 +240,7 @@ def main():
     if sknw_available:
         try:
             import sknw
+
             t0 = time.time()
             G = sknw.build_sknw(skeleton)
             t1 = time.time()
@@ -278,7 +288,9 @@ def main():
         components = list(nx.connected_components(G))
         observations.append(f"Connected components: {len(components)}")
         largest = len(max(components, key=len))
-        observations.append(f"Largest component: {largest} nodes ({largest/max(num_nodes,1)*100:.0f}%)")
+        observations.append(
+            f"Largest component: {largest} nodes ({largest/max(num_nodes,1)*100:.0f}%)"
+        )
 
     # Step 7: Test NetworkX algorithm compatibility
     t0 = time.time()
@@ -297,19 +309,19 @@ def main():
 
     attrs_added = 0
     for nid, data in G.nodes(data=True):
-        if 'y' in data and 'x' in data:
-            G.nodes[nid]['lat'] = pix_to_lat(data['y'])
-            G.nodes[nid]['lon'] = pix_to_lon(data['x'])
+        if "y" in data and "x" in data:
+            G.nodes[nid]["lat"] = pix_to_lat(data["y"])
+            G.nodes[nid]["lon"] = pix_to_lon(data["x"])
             attrs_added += 1
     if attrs_added == 0 and num_nodes > 0:
         # Try using pts attribute
         for nid, data in G.nodes(data=True):
-            if 'pts' in data:
-                pts = data['pts']
+            if "pts" in data:
+                pts = data["pts"]
                 if len(pts) > 0:
                     centroid = pts.mean(axis=0)
-                    G.nodes[nid]['lat'] = pix_to_lat(centroid[0])
-                    G.nodes[nid]['lon'] = pix_to_lon(centroid[1])
+                    G.nodes[nid]["lat"] = pix_to_lat(centroid[0])
+                    G.nodes[nid]["lon"] = pix_to_lon(centroid[1])
                     attrs_added += 1
 
     observations.append(f"Geo annotations added: {attrs_added}/{num_nodes} nodes")
@@ -330,18 +342,22 @@ def main():
         verdict = "works_with_issues"
         status = "pass"
         if "sknw" not in [n.lower() for n in notes]:
-            notes.append("sknw not installable (numba/llvmlite build failure). Pure-Python fallback validated.")
+            notes.append(
+                "sknw not installable (numba/llvmlite build failure). Pure-Python fallback validated."
+            )
 
     if graph_source == "pure-python" and verdict == "works":
-        follow_up.append("SKNW numba dependency blocks installation. Pure-Python fallback validated. "
-                         "Consider switching to pure-Python skeleton-to-graph in Sprint 0 to avoid LLVM dependency.")
+        follow_up.append(
+            "SKNW numba dependency blocks installation. Pure-Python fallback validated. "
+            "Consider switching to pure-Python skeleton-to-graph in Sprint 0 to avoid LLVM dependency."
+        )
 
     write_report(
         status,
         verdict,
         "; ".join(observations),
         "; ".join(notes),
-        "; ".join(follow_up) if follow_up else "None"
+        "; ".join(follow_up) if follow_up else "None",
     )
     return 0 if status == "pass" else 1
 

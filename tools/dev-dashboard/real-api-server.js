@@ -31,20 +31,20 @@ loadData();
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
-  
+
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
-  
+
   res.setHeader('Content-Type', 'application/json');
-  
+
   if (url.pathname === '/api/status') {
     res.writeHead(200);
     res.end(JSON.stringify({
@@ -59,10 +59,10 @@ const server = http.createServer((req, res) => {
   } else if (url.pathname === '/api/graph') {
     const project = url.searchParams.get('project') || 'ARGUS';
     const limit = parseInt(url.searchParams.get('limit') || '5000');
-    
+
     const nodes = (cachedData?.nodes || []).slice(0, limit);
     const edges = (cachedData?.edges || []).slice(0, limit);
-    
+
     res.writeHead(200);
     res.end(JSON.stringify({
       metadata: { ...cachedData?.metadata, project },

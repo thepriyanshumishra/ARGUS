@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 
 import networkx as nx
-
 from argus.core.types import RoadGraph
 from argus.routing.router import (
     AccessibilityQuery,

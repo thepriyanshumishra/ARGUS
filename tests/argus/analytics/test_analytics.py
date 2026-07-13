@@ -5,7 +5,6 @@ import os
 
 import networkx as nx
 import pytest
-
 from argus.analytics.analyzer import (
     AnalyticsConfig,
     CriticalityAnalyzerImpl,

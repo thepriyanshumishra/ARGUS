@@ -27,13 +27,13 @@ export function CodebaseMemoryProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [lastIndexed, setLastIndexed] = useState<string | null>(null)
-  
+
   const { setCodebaseMemoryAvailable, setLastIndexed: setStoreLastIndexed, setRepositoryStats } = useDashboardStore()
 
   const fetchData = async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
       // Check MCP status
       const statusResponse = await fetch(`${MCP_URL}/api/status`).catch(() => null)
@@ -73,7 +73,7 @@ export function CodebaseMemoryProvider({ children }: { children: ReactNode }) {
   // Initial fetch
   useEffect(() => {
     fetchData()
-    
+
     // Set up polling for auto-refresh
     const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)

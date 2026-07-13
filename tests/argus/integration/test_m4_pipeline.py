@@ -1,6 +1,7 @@
 """M4 integration tests: build graph → analyze → verify reports."""
 
 import os
+
 os.environ["ARGUS_TESTING"] = "1"
 
 import json
@@ -150,7 +151,6 @@ class TestM4Integration:
         import pickle
 
         import networkx as nx
-
         from argus.core.types import RoadGraph
 
         empty_graph_path = tmp_path / "empty.pkl"

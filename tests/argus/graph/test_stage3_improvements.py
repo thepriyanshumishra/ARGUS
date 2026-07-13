@@ -1,9 +1,6 @@
 """Unit tests for Stage 3 improvements."""
 
-import pytest
 import networkx as nx
-import numpy as np
-
 from argus.graph.cleaning import merge_close_nodes, snap_endpoints
 
 
@@ -13,15 +10,15 @@ def test_merge_close_nodes_snaps_geometry():
     # Node 0 (survivor) and Node 1 (victim, to be merged) are at distance 2.0 (under threshold 5.0)
     g.add_node(0, x=0.0, y=0.0, lat=12.0, lon=77.0)
     g.add_node(1, x=2.0, y=0.0, lat=12.0, lon=77.0)
-    
+
     # Node 2 and Node 3 to create edges
     g.add_node(2, x=10.0, y=0.0, lat=12.0, lon=77.0)
     g.add_node(3, x=-10.0, y=0.0, lat=12.0, lon=77.0)
-    
+
     # Connect Node 0 with 2 edges (degree 2)
     g.add_edge(2, 0, key=0)
     g.add_edge(0, 3, key=0)
-    
+
     # Connect Node 1 with 1 edge (degree 1)
     # The edge from 2 to 1 ends at (2.0, 0.0) which is Node 1's position
     path_pixels = [(10.0, 0.0), (5.0, 0.0), (2.0, 0.0)]
@@ -45,11 +42,11 @@ def test_merge_close_nodes_snaps_geometry():
 def test_snap_endpoints_splits_nearby_edges():
     """Verify that snapping endpoints close to edges splits the target edge."""
     g = nx.MultiDiGraph()
-    
+
     # Create a long edge (horizontal highway from 0 to 1)
     g.add_node(0, x=0.0, y=0.0, lat=12.0, lon=77.0, degree=2)
     g.add_node(1, x=100.0, y=0.0, lat=12.0, lon=77.1, degree=2)
-    
+
     # Path pixels of highway
     highway_pixels = [(0.0, 0.0), (50.0, 0.0), (100.0, 0.0)]
     g.add_edge(0, 1, key=0, path_pixels=highway_pixels, length_px=100.0)
@@ -69,12 +66,12 @@ def test_snap_endpoints_splits_nearby_edges():
 
     # Endpoint Node 3 should be gone (merged/snapped to new node)
     assert 3 not in snapped
-    
+
     # There should be a new node representing the split point
     # Since original nodes were 0, 1, 2, 3, the new node will be 4
     assert 4 in snapped
     new_node_data = snapped.nodes[4]
-    
+
     # New node should be located at the split point (50.0, 0.0)
     assert new_node_data["x"] == 50.0
     assert new_node_data["y"] == 0.0

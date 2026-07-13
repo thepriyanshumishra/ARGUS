@@ -15,10 +15,10 @@ interface GraphNodesProps {
   onNodeHover: (id: string | null) => void
 }
 
-export function GraphNodes({ 
-  nodes, 
-  colorScheme, 
-  selectedNodeId, 
+export function GraphNodes({
+  nodes,
+  colorScheme,
+  selectedNodeId,
   hoveredNodeId,
   pinnedNodes,
   onNodeClick,
@@ -35,19 +35,19 @@ export function GraphNodes({
 
     const geometry = new THREE.BufferGeometry()
     const count = nodes.length
-    
+
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
     const sizes = new Float32Array(count)
     const nodeIds = new Float32Array(count)
     const alphas = new Float32Array(count)
-    
+
     nodes.forEach((node, i) => {
       const pos = node.position || { x: 0, y: 0, z: 0 }
       positions[i * 3] = pos.x
       positions[i * 3 + 1] = pos.y
       positions[i * 3 + 2] = pos.z
-      
+
       let color = new THREE.Color(0x888888)
       if (colorScheme === 'type') {
         color.set(NODE_TYPE_COLORS[node.type] || '#888888')
@@ -56,26 +56,26 @@ export function GraphNodes({
       } else if (colorScheme === 'layer') {
         color.set(LAYER_COLORS[node.layer] || '#888888')
       }
-      
+
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
-      
+
       const connections = (node.inDegree || 0) + (node.outDegree || 0)
       sizes[i] = Math.max(3, Math.min(12, 3 + connections * 0.8))
-      
+
       nodeIds[i] = i
       alphas[i] = 1.0
     })
-    
+
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1))
     geometry.setAttribute('nodeId', new THREE.BufferAttribute(nodeIds, 1))
     geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1))
-    
+
     geometryRef.current = geometry
-    
+
     const material = new THREE.PointsMaterial({
       size: 1,
       vertexColors: true,
@@ -85,12 +85,12 @@ export function GraphNodes({
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     })
-    
+
     materialRef.current = material
-    
+
     const points = new THREE.Points(geometry, material)
     pointsRef.current = points
-    
+
     return () => {
       geometry.dispose()
       material.dispose()
@@ -100,19 +100,19 @@ export function GraphNodes({
   // Update positions when nodes change
   useEffect(() => {
     if (!nodes || nodes.length === 0 || !geometryRef.current) return
-    
+
     const geometry = geometryRef.current
     const positions = geometry.getAttribute('position').array as Float32Array
     const colors = geometry.getAttribute('color').array as Float32Array
     const sizes = geometry.getAttribute('size').array as Float32Array
     const alphas = geometry.getAttribute('alpha').array as Float32Array
-    
+
     nodes.forEach((node, i) => {
       const pos = node.position || { x: 0, y: 0, z: 0 }
       positions[i * 3] = pos.x
       positions[i * 3 + 1] = pos.y
       positions[i * 3 + 2] = pos.z
-      
+
       let color = new THREE.Color(0x888888)
       if (colorScheme === 'type') {
         color.set(NODE_TYPE_COLORS[node.type] || '#888888')
@@ -121,19 +121,19 @@ export function GraphNodes({
       } else if (colorScheme === 'layer') {
         color.set(LAYER_COLORS[node.layer] || '#888888')
       }
-      
+
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
-      
+
       const connections = (node.inDegree || 0) + (node.outDegree || 0)
       sizes[i] = Math.max(3, Math.min(12, 3 + connections * 0.8))
-      
+
       // Highlight selected/hovered/pinned
       const isSelected = node.id === selectedNodeId
       const isHovered = node.id === hoveredNodeId
       const isPinned = pinnedNodes.includes(node.id)
-      
+
       if (isSelected) {
         alphas[i] = 1.0
         sizes[i] = Math.max(sizes[i], 14)
@@ -147,7 +147,7 @@ export function GraphNodes({
         alphas[i] = 0.85
       }
     })
-    
+
     geometry.getAttribute('position').needsUpdate = true
     geometry.getAttribute('color').needsUpdate = true
     geometry.getAttribute('size').needsUpdate = true
@@ -194,20 +194,20 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
     // We need to rebuild geometry when edges or node positions change
     const rebuildGeometry = () => {
       if (!geometryRef.current) return
-      
+
       const geometry = geometryRef.current
       const positions = geometry.getAttribute('position').array as Float32Array
       const colors = geometry.getAttribute('color').array as Float32Array
-      
+
       edges.forEach((edge, i) => {
         const source = nodeMap.get(edge.source)
         const target = nodeMap.get(edge.target)
-        
+
         if (!source || !target) return
-        
+
         const srcPos = source.position
         const tgtPos = target.position
-        
+
         // Source to target
         positions[i * 6] = srcPos.x
         positions[i * 6 + 1] = srcPos.y
@@ -215,17 +215,17 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
         positions[i * 6 + 3] = tgtPos.x
         positions[i * 6 + 4] = tgtPos.y
         positions[i * 6 + 5] = tgtPos.z
-        
+
         // Color based on edge type
         const edgeColor = EDGE_TYPE_COLORS[edge.type] || '#444444'
         const color = new THREE.Color(edgeColor)
-        
+
         // Highlight edges connected to selected/hovered node
         const isHighlighted = edge.source === selectedNodeId || edge.target === selectedNodeId ||
                               edge.source === hoveredNodeId || edge.target === hoveredNodeId
-        
+
         const alpha = isHighlighted ? 0.8 : 0.15
-        
+
         colors[i * 6] = color.r * alpha
         colors[i * 6 + 1] = color.g * alpha
         colors[i * 6 + 2] = color.b * alpha
@@ -233,7 +233,7 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
         colors[i * 6 + 4] = color.g * alpha
         colors[i * 6 + 5] = color.b * alpha
       })
-      
+
       geometry.getAttribute('position').needsUpdate = true
       geometry.getAttribute('color').needsUpdate = true
     }
@@ -244,27 +244,27 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
       const count = edges.length
       const positions = new Float32Array(count * 6)
       const colors = new Float32Array(count * 6)
-      
+
       edges.forEach((edge, i) => {
         const source = nodeMap.get(edge.source)
         const target = nodeMap.get(edge.target)
-        
+
         if (!source || !target) return
-        
+
         const srcPos = source.position
         const tgtPos = target.position
-        
+
         positions[i * 6] = srcPos.x
         positions[i * 6 + 1] = srcPos.y
         positions[i * 6 + 2] = srcPos.z
         positions[i * 6 + 3] = tgtPos.x
         positions[i * 6 + 4] = tgtPos.y
         positions[i * 6 + 5] = tgtPos.z
-        
+
         const edgeColor = EDGE_TYPE_COLORS[edge.type] || '#444444'
         const color = new THREE.Color(edgeColor)
         const alpha = 0.15
-        
+
         colors[i * 6] = color.r * alpha
         colors[i * 6 + 1] = color.g * alpha
         colors[i * 6 + 2] = color.b * alpha
@@ -272,12 +272,12 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
         colors[i * 6 + 4] = color.g * alpha
         colors[i * 6 + 5] = color.b * alpha
       })
-      
+
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-      
+
       geometryRef.current = geometry
-      
+
       const material = new THREE.LineBasicMaterial({
         vertexColors: true,
         transparent: true,
@@ -286,20 +286,20 @@ export function GraphEdges({ nodes, edges, selectedNodeId, hoveredNodeId }: Grap
         depthWrite: false,
         linewidth: 1,
       })
-      
+
       materialRef.current = material
-      
+
       const lines = new THREE.LineSegments(geometry, material)
       lineRef.current = lines
-      
+
       return () => {
         geometry.dispose()
         material.dispose()
       }
     }
-    
+
     rebuildGeometry()
-    
+
     // Update on selection/hover changes
     const interval = setInterval(rebuildGeometry, 100)
     return () => clearInterval(interval)
@@ -342,17 +342,17 @@ function Stars({ count = 1500 }: { count: number }) {
       const radius = 400 + Math.random() * 400
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
-      
+
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
       positions[i * 3 + 2] = radius * Math.cos(phi)
-      
+
       const hue = 0.55 + Math.random() * 0.15 // Blue-cyan range
       const color = new THREE.Color().setHSL(hue, 0.4, 0.5 + Math.random() * 0.3)
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
-      
+
       sizes[i] = Math.random() * 0.6 + 0.3
     }
 
@@ -461,14 +461,14 @@ export function GraphRaycaster() {
       mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
 
       raycasterRef.current.setFromCamera(mouseRef.current, camera)
-      
+
       // Find intersecting nodes
-      const nodeObjects = scene.children.filter(child => 
+      const nodeObjects = scene.children.filter(child =>
         child.isPoints && child.geometry?.attributes?.nodeId
       )
-      
+
       const intersects = raycasterRef.current.intersectObjects(nodeObjects)
-      
+
       if (intersects.length > 0) {
         const intersect = intersects[0]
         const nodeIdAttr = intersect.object.geometry.attributes.nodeId
@@ -488,13 +488,13 @@ export function GraphRaycaster() {
       mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
 
       raycasterRef.current.setFromCamera(mouseRef.current, camera)
-      
-      const nodeObjects = scene.children.filter(child => 
+
+      const nodeObjects = scene.children.filter(child =>
         child.isPoints && child.geometry?.attributes?.nodeId
       )
-      
+
       const intersects = raycasterRef.current.intersectObjects(nodeObjects)
-      
+
       if (intersects.length > 0) {
         const intersect = intersects[0]
         const nodeIdAttr = intersect.object.geometry.attributes.nodeId

@@ -195,7 +195,7 @@ def snap_endpoints(
             target = ne_ids[nidx]
             if ep not in graph:
                 continue
-            
+
             target_data = graph.nodes[target]
             target_coord = (float(target_data.get("x", 0)), float(target_data.get("y", 0)))
 
@@ -226,7 +226,9 @@ def snap_endpoints(
             log.debug(f"Snapped endpoint {ep} to node {target}")
 
     # 2. Snap remaining endpoints to nearby edge midpoints (splitting the edge)
-    endpoints_active = {nid: coord for nid, coord in endpoints.items() if nid in graph and graph.degree(nid) == 1}
+    endpoints_active = {
+        nid: coord for nid, coord in endpoints.items() if nid in graph and graph.degree(nid) == 1
+    }
 
     for ep, ep_coord in list(endpoints_active.items()):
         if ep not in graph or graph.degree(ep) != 1:
@@ -274,7 +276,7 @@ def snap_endpoints(
             graph.add_node(new_node, x=best_point[0], y=best_point[1], lat=new_lat, lon=new_lon)
 
             # Split path_pixels
-            left_pixels = pixels[:best_idx + 1]
+            left_pixels = pixels[: best_idx + 1]
             right_pixels = pixels[best_idx:]
 
             # Remove original edge
@@ -282,14 +284,30 @@ def snap_endpoints(
 
             # Add split edges
             if len(left_pixels) >= 2:
-                graph.add_edge(u, new_node, key=0, path_pixels=left_pixels, length_px=float(len(left_pixels)))
+                graph.add_edge(
+                    u, new_node, key=0, path_pixels=left_pixels, length_px=float(len(left_pixels))
+                )
             else:
-                graph.add_edge(u, new_node, key=0, path_pixels=[(u_data["x"], u_data["y"]), best_point], length_px=2.0)
+                graph.add_edge(
+                    u,
+                    new_node,
+                    key=0,
+                    path_pixels=[(u_data["x"], u_data["y"]), best_point],
+                    length_px=2.0,
+                )
 
             if len(right_pixels) >= 2:
-                graph.add_edge(new_node, v, key=0, path_pixels=right_pixels, length_px=float(len(right_pixels)))
+                graph.add_edge(
+                    new_node, v, key=0, path_pixels=right_pixels, length_px=float(len(right_pixels))
+                )
             else:
-                graph.add_edge(new_node, v, key=0, path_pixels=[best_point, (v_data["x"], v_data["y"])], length_px=2.0)
+                graph.add_edge(
+                    new_node,
+                    v,
+                    key=0,
+                    path_pixels=[best_point, (v_data["x"], v_data["y"])],
+                    length_px=2.0,
+                )
 
             # Reroute ep edges to new_node, snapping their endpoints
             edges_to_reroute = []

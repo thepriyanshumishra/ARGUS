@@ -8,7 +8,7 @@ export function LoadingGraph() {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark-950">
       <div className="relative w-48 h-48">
         {[1, 2, 3].map(i => (
-          <div key={i} className="absolute inset-0 rounded-full border border-primary-500/20 animate-spin-slow" 
+          <div key={i} className="absolute inset-0 rounded-full border border-primary-500/20 animate-spin-slow"
             style={{ width: `${120 + i * 30}px`, height: `${120 + i * 30}px`, margin: `-${60 + i * 15}px`, animationDuration: `${15 + i * 5}s` }} />
         ))}
         <div className="absolute inset-0 flex items-center justify-center">

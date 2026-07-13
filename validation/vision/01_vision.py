@@ -13,9 +13,7 @@ No accuracy measurement. No speed benchmarking. No CPU/GPU comparison.
 """
 
 import json
-import os
 import sys
-import time
 from pathlib import Path
 
 REPORT_PATH = Path(__file__).parent / "report.json"
@@ -33,7 +31,7 @@ def write_report(status, verdict, observations, notes, follow_up):
         "follow_up": follow_up,
     }
     REPORT_PATH.write_text(json.dumps(report, indent=2))
-    print(f"\n=== V1 Report ===")
+    print("\n=== V1 Report ===")
     print(json.dumps(report, indent=2))
 
 
@@ -45,13 +43,15 @@ def main():
     # Step 1: Check torch availability
     try:
         import torch
+
         print(f"[OK] torch {torch.__version__}")
         print(f"[INFO] CUDA available: {torch.cuda.is_available()}")
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"[INFO] Using device: {device}")
     except ImportError as e:
         write_report(
-            "fail", "fails",
+            "fail",
+            "fails",
             "torch not importable",
             f"ImportError: {e}",
             "Install torch in validation venv before re-running",
@@ -71,6 +71,7 @@ def main():
         print("[INFO] No sample image found. Creating synthetic 1024x1024 RGB image.")
         # Create a synthetic satellite-like image with some road-like patterns
         import cv2
+
         img = np.zeros((1024, 1024, 3), dtype=np.uint8)
         # Add some "buildings" (random rectangles)
         np.random.seed(42)
@@ -98,16 +99,25 @@ def main():
     # Try cloning the repo
     if not repo_dir.exists():
         import subprocess
+
         print("[INFO] Cloning earth-insights/samroadplus ...")
         result = subprocess.run(
-            ["git", "clone", "--depth", "1",
-             "https://github.com/earth-insights/samroadplus.git",
-             str(repo_dir)],
-            capture_output=True, text=True, timeout=120
+            [
+                "git",
+                "clone",
+                "--depth",
+                "1",
+                "https://github.com/earth-insights/samroadplus.git",
+                str(repo_dir),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
         )
         if result.returncode != 0:
             write_report(
-                "fail", "fails",
+                "fail",
+                "fails",
                 f"Could not clone SAM-Road++ repo: {result.stderr[:200]}",
                 "Repository clone failed",
                 "Check network or use a mirror/fork",
@@ -138,19 +148,21 @@ def main():
         print("[INFO] Downloading SAM ViT-B backbone checkpoint (~375 MB) ...")
         try:
             import urllib.request
+
             urllib.request.urlretrieve(sam_vit_b_url, str(sam_vit_b_path))
             size_mb = sam_vit_b_path.stat().st_size / (1024 * 1024)
             print(f"[OK] SAM ViT-B downloaded: {size_mb:.1f} MB")
         except Exception as e:
             write_report(
-                "fail", "fails",
+                "fail",
+                "fails",
                 f"Could not download SAM ViT-B checkpoint: {e}",
                 "Network error or URL changed",
                 "Manually download sam_vit_b_01ec64.pth",
             )
             return 1
     else:
-        print(f"[OK] SAM ViT-B checkpoint already exists")
+        print("[OK] SAM ViT-B checkpoint already exists")
 
     # Step 6: Try to download the SAM-Road++ trained checkpoint
     # Based on the repo, checkpoints may be in lightning_logs or provided separately
@@ -176,6 +188,7 @@ def main():
         print("[INFO] Attempting to download SAM-Road checkpoint from HuggingFace ...")
         try:
             from huggingface_hub import hf_hub_download
+
             # Try SAM-Road v1 checkpoint first (congrui/sam_road)
             # The repo may have a spacenet_vitb_256_e10.ckpt
             downloaded = hf_hub_download(
@@ -184,6 +197,7 @@ def main():
                 cache_dir=str(SAMPLE_DIR / "hf_cache"),
             )
             import shutil
+
             shutil.copy(downloaded, sam_road_ckpt_path)
             print(f"[OK] Checkpoint downloaded: {sam_road_ckpt_path}")
         except Exception as e:
@@ -226,10 +240,12 @@ def main():
 
     # Load the sample image
     import cv2
+
     img = cv2.imread(str(sample_path))
     if img is None:
         write_report(
-            "fail", "fails",
+            "fail",
+            "fails",
             "Could not load sample image",
             f"cv2.imread returned None for {sample_path}",
             "Check image file integrity",
@@ -276,9 +292,9 @@ def main():
     observations.append(f"SAM ViT-B backbone available: {sam_vit_b_path.exists()}")
     observations.append(f"SAM-Road++ repo cloned: {repo_dir.exists()}")
     if sam_road_ckpt_path.exists():
-        observations.append(f"Trained checkpoint available")
+        observations.append("Trained checkpoint available")
     else:
-        observations.append(f"Trained checkpoint NOT downloaded (HF download failed)")
+        observations.append("Trained checkpoint NOT downloaded (HF download failed)")
     observations.append(f"Model architecture parseable: {model_loaded}")
     if inference_done:
         observations.append("Checkpoint loads as valid torch state_dict")

@@ -6,18 +6,18 @@ import { useDashboardStore } from '../store'
 import { cn } from '../utils/cn'
 
 export function MainPanel() {
-  const { 
-    viewMode, 
+  const {
+    viewMode,
     setViewMode,
-    filteredNodes, 
-    filteredEdges, 
+    filteredNodes,
+    filteredEdges,
     colorScheme,
     loading,
     setSelectedNode,
     setHoveredNode,
     pinnedNodes,
   } = useDashboardStore()
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [canvasReady, setCanvasReady] = useState(false)
@@ -42,11 +42,11 @@ export function MainPanel() {
         <Canvas
           ref={canvasRef}
           camera={{ position: [0, 0, 220], fov: 50 }}
-          gl={{ 
-            antialias: true, 
-            alpha: true, 
-            powerPreference: 'high-performance', 
-            preserveDrawingBuffer: true 
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+            preserveDrawingBuffer: true
           }}
           onCreated={({ gl }) => {
             gl.setClearColor(0x0f172a, 1)
@@ -60,14 +60,14 @@ export function MainPanel() {
             <GraphBackground />
             {filteredNodes.length > 0 && (
               <>
-                <GraphEdges 
-                  nodes={filteredNodes} 
-                  edges={filteredEdges} 
+                <GraphEdges
+                  nodes={filteredNodes}
+                  edges={filteredEdges}
                   selectedNodeId={useDashboardStore.getState().selectedNodeId}
                   hoveredNodeId={useDashboardStore.getState().hoveredNodeId}
                 />
-                <GraphNodes 
-                  nodes={filteredNodes} 
+                <GraphNodes
+                  nodes={filteredNodes}
                   colorScheme={colorScheme}
                   selectedNodeId={useDashboardStore.getState().selectedNodeId}
                   hoveredNodeId={useDashboardStore.getState().hoveredNodeId}
@@ -136,7 +136,7 @@ export function MainPanel() {
                     key={mode}
                     className={cn(
                       'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-                      viewMode === mode 
+                      viewMode === mode
                         ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30 shadow-[0_0_12px_rgba(14,165,233,0.2)]'
                         : 'text-dark-400 hover:text-dark-100 hover:bg-dark-700/50'
                     )}
@@ -147,7 +147,7 @@ export function MainPanel() {
                 ))}
               </div>
             </div>
-            
+
             {/* Color Scheme Selector */}
             <div className="glass-strong rounded-xl p-2 shadow-xl mt-2 min-w-[160px]">
               <div className="text-xs font-medium text-dark-400 mb-1 uppercase tracking-wide">Color By</div>
@@ -202,7 +202,7 @@ export function MainPanel() {
           {/* Bottom-left: Node Detail Panel */}
           {useDashboardStore.getState().selectedNodeId && (
             <div className="absolute bottom-4 left-4 pointer-events-auto">
-              <NodeDetailPanel 
+              <NodeDetailPanel
                 node={filteredNodes.find(n => n.id === useDashboardStore.getState().selectedNodeId)}
                 onClose={() => setSelectedNode(null)}
                 onPin={() => {
@@ -219,9 +219,9 @@ export function MainPanel() {
   )
 }
 
-function NodeDetailPanel({ node, onClose, onPin, isPinned }: { 
-  node: any; 
-  onClose: () => void; 
+function NodeDetailPanel({ node, onClose, onPin, isPinned }: {
+  node: any;
+  onClose: () => void;
   onPin: () => void;
   isPinned: boolean;
 }) {
@@ -270,17 +270,17 @@ function NodeDetailPanel({ node, onClose, onPin, isPinned }: {
       </div>
 
       <div className="flex items-center gap-2">
-        <button 
+        <button
           onClick={onPin}
           className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-            isPinned 
-              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+            isPinned
+              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
               : 'bg-dark-700/50 text-dark-300 hover:bg-dark-600/50 border border-dark-600/50'
           }`}
         >
           {isPinned ? 'Unpin' : 'Pin Node'}
         </button>
-        <button 
+        <button
           onClick={onClose}
           className="px-3 py-2 rounded-lg text-sm font-medium bg-dark-700/50 text-dark-300 hover:bg-dark-600/50 border border-dark-600/50 transition-colors"
         >

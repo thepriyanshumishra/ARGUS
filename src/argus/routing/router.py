@@ -153,7 +153,7 @@ class RouterImpl(Router):
 
         delta_len = (mod_len - base_len) if base_len and mod_len else None
         delta_time = (mod_time - base_time) if base_time and mod_time else None
-        
+
         status = "unchanged"
         tolerance = 0.1  # 10 cm tolerance for float comparisons
         if not modified:

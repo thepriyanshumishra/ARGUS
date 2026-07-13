@@ -58,7 +58,9 @@ class RasterImageLoader:
                 if img_data.ndim == 3:
                     normalized = np.zeros_like(img_data, dtype=np.float32)
                     for c in range(img_data.shape[2]):
-                        normalized[:, :, c] = normalize_image(img_data[:, :, c], method=self.normalize_method)
+                        normalized[:, :, c] = normalize_image(
+                            img_data[:, :, c], method=self.normalize_method
+                        )
                 else:
                     normalized = normalize_image(img_data, method=self.normalize_method)
                 uint8_data = (normalized * 255.0).astype(np.uint8)

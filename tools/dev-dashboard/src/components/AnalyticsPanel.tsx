@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { 
+import {
   FileCode, Layers, Zap, GitBranch, Package, Search, Filter, Settings, ExternalLink,
   ChevronDown, ChevronUp, BarChart3, PieChart, TrendingUp, Target, X,
   Zap as ZapIcon, RotateCcw, Download, Settings as SettingsIcon,
@@ -60,7 +60,7 @@ export function AnalyticsPanel({ open = true, onClose }: AnalyticsPanelProps) {
   }, [graphData, filteredNodes, filteredEdges])
 
   return (
-    <aside 
+    <aside
       className={cn(
         'flex flex-col bg-dark-950/95 backdrop-blur-xl border-l border-dark-700/50 transition-all duration-300',
         open ? 'w-96 min-w-[384px]' : 'w-0 min-w-0 overflow-hidden'

@@ -42,7 +42,9 @@ class ArtifactCache:
     def _get_path(self, key: str, format: str) -> Path:
         return self.cache_dir / f"{key}.{format}"
 
-    def save(self, key: str, data: Any, format: str = "pickle", source_hash: str | None = None) -> Path:
+    def save(
+        self, key: str, data: Any, format: str = "pickle", source_hash: str | None = None
+    ) -> Path:
         """Save an artifact to cache."""
         path = self._get_path(key, format)
         log.debug(f"Caching {key} to {path}")
@@ -114,7 +116,7 @@ class ArtifactCache:
             npz_data = np.load(path, allow_pickle=True)
             meta_str = str(npz_data["metadata"])
             metadata = json.loads(meta_str) if meta_str else {}
-            
+
             if expected_hash and metadata.get("_data_hash") != expected_hash:
                 raise FileNotFoundError(f"Cache hash validation failed for {key}")
 
@@ -161,7 +163,9 @@ class ArtifactCache:
             metadata=meta.get("metadata", {}) if isinstance(meta.get("metadata"), dict) else {},
         )
 
-    def save_road_graph(self, key: str, road_graph: RoadGraph, source_hash: str | None = None) -> tuple[Path, Path]:
+    def save_road_graph(
+        self, key: str, road_graph: RoadGraph, source_hash: str | None = None
+    ) -> tuple[Path, Path]:
         """Save a RoadGraph as graphml + metadata json."""
         graph_path = self._get_path(key, "graphml")
         meta_path = self._get_path(key, "json")
